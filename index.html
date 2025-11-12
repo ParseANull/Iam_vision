@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBM Security Verify - IAM Visualization Dashboard</title>
+    
+    <!-- Carbon Design System CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/carbon-components@11.49.0/css/carbon-components.min.css">
+    
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bx--header" role="banner" aria-label="IBM Security Verify">
+        <a class="bx--header__name" href="#" prefix="">
+            <span class="bx--header__name--prefix">IBM Security Verify&nbsp;</span>
+            IAM Dashboard
+        </a>
+        
+        <nav class="bx--header__nav" aria-label="Dashboard Navigation">
+            <ul class="bx--header__menu-bar" aria-label="Dashboard">
+                <li>
+                    <a class="bx--header__menu-item" href="#" data-view="overview">Overview</a>
+                </li>
+                <li>
+                    <a class="bx--header__menu-item" href="#" data-view="applications">Applications</a>
+                </li>
+                <li>
+                    <a class="bx--header__menu-item" href="#" data-view="federations">Federations</a>
+                </li>
+                <li>
+                    <a class="bx--header__menu-item" href="#" data-view="mfa">MFA Config</a>
+                </li>
+                <li>
+                    <a class="bx--header__menu-item" href="#" data-view="attributes">Attributes</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="bx--header__global">
+            <button class="bx--header__action" aria-label="Theme Switcher" id="theme-switcher">
+                <svg class="bx--header__action-icon" width="20" height="20" viewBox="0 0 20 20">
+                    <path d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 14V4a6 6 0 0 1 0 12z"></path>
+                </svg>
+            </button>
+            <button class="bx--header__action" aria-label="Export Data" id="export-data">
+                <svg class="bx--header__action-icon" width="20" height="20" viewBox="0 0 32 32">
+                    <path d="M26 24v4H6v-4H4v4a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2v-4zM6 12l1.41 1.41L15 5.83V22h2V5.83l7.59 7.58L26 12 16 2 6 12z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="bx--content">
+        <!-- Loading State -->
+        <div id="loading-state" class="loading-state">
+            <div class="bx--loading bx--loading--small">
+                <svg class="bx--loading__svg" viewBox="0 0 100 100">
+                    <circle class="bx--loading__stroke" cx="50%" cy="50%" r="44"></circle>
+                </svg>
+            </div>
+            <p>Loading IAM data...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error-state" class="error-state" style="display: none;">
+            <div class="bx--inline-notification bx--inline-notification--error" role="alert">
+                <div class="bx--inline-notification__details">
+                    <svg class="bx--inline-notification__icon" width="20" height="20" viewBox="0 0 20 20">
+                        <path d="M10 1c-5 0-9 4-9 9s4 9 9 9 9-4 9-9-4-9-9-9zm-.7 13.5h1.5v-1.5h-1.5v1.5zm0-3h1.5v-6h-1.5v6z"></path>
+                    </svg>
+                    <div class="bx--inline-notification__text-wrapper">
+                        <p class="bx--inline-notification__title">Error Loading Data</p>
+                        <p class="bx--inline-notification__subtitle" id="error-message"></p>
+                    </div>
+                </div>
+                <button class="bx--inline-notification__close-button" type="button" aria-label="Close">
+                    <svg class="bx--inline-notification__close-icon" width="20" height="20" viewBox="0 0 32 32">
+                        <path d="M24 9.4L22.6 8 16 14.6 9.4 8 8 9.4l6.6 6.6L8 22.6 9.4 24l6.6-6.6 6.6 6.6 1.4-1.4-6.6-6.6L24 9.4z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Overview View -->
+        <div id="overview-view" class="view-container">
+            <div class="bx--grid">
+                <div class="bx--row">
+                    <div class="bx--col-lg-16">
+                        <h1 class="page-title">IAM Overview Dashboard</h1>
+                        <p class="page-description">Comprehensive visualization of IBM Security Verify identity and access management data</p>
+                    </div>
+                </div>
+                
+                <!-- Metrics Cards -->
+                <div class="bx--row metrics-row">
+                    <div class="bx--col-lg-4 bx--col-md-4 bx--col-sm-4">
+                        <div class="metric-card">
+                            <h3>Applications</h3>
+                            <div class="metric-value" id="total-applications">-</div>
+                            <p class="metric-label">Total Applications</p>
+                        </div>
+                    </div>
+                    <div class="bx--col-lg-4 bx--col-md-4 bx--col-sm-4">
+                        <div class="metric-card">
+                            <h3>Federations</h3>
+                            <div class="metric-value" id="total-federations">-</div>
+                            <p class="metric-label">Federation Configs</p>
+                        </div>
+                    </div>
+                    <div class="bx--col-lg-4 bx--col-md-4 bx--col-sm-4">
+                        <div class="metric-card">
+                            <h3>MFA Methods</h3>
+                            <div class="metric-value" id="total-mfa">-</div>
+                            <p class="metric-label">Authentication Methods</p>
+                        </div>
+                    </div>
+                    <div class="bx--col-lg-4 bx--col-md-4 bx--col-sm-4">
+                        <div class="metric-card">
+                            <h3>Attributes</h3>
+                            <div class="metric-value" id="total-attributes">-</div>
+                            <p class="metric-label">User Attributes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Visualizations -->
+                <div class="bx--row">
+                    <div class="bx--col-lg-8">
+                        <div class="visualization-card">
+                            <h3>Application Categories</h3>
+                            <div id="app-treemap" class="visualization"></div>
+                        </div>
+                    </div>
+                    <div class="bx--col-lg-8">
+                        <div class="visualization-card">
+                            <h3>MFA Adoption Rate</h3>
+                            <div id="mfa-chart" class="visualization"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Applications View -->
+        <div id="applications-view" class="view-container" style="display: none;">
+            <div class="bx--grid">
+                <div class="bx--row">
+                    <div class="bx--col-lg-16">
+                        <h1 class="page-title">Applications</h1>
+                        <p class="page-description">Detailed view of all applications and their relationships</p>
+                    </div>
+                </div>
+                
+                <!-- Search and Filter -->
+                <div class="bx--row">
+                    <div class="bx--col-lg-8">
+                        <div class="bx--search bx--search--lg" role="search">
+                            <label for="app-search" class="bx--label bx--visually-hidden">Search</label>
+                            <input class="bx--search-input" type="text" id="app-search" placeholder="Search applications..." />
+                            <svg class="bx--search-magnifier" width="16" height="16" viewBox="0 0 16 16">
+                                <path d="M15 14.3L10.7 10c1.9-2.3 1.6-5.8-.7-7.7S4.2.7 2.3 3 .7 8.8 3 10.7c2 1.7 5 1.7 7 0l4.3 4.3.7-.7zM2 6.5C2 4 4 2 6.5 2S11 4 11 6.5 9 11 6.5 11 2 9 2 6.5z"></path>
+                            </svg>
+                            <button class="bx--search-close bx--search-close--hidden" title="Clear search" aria-label="Clear search">
+                                <svg width="16" height="16" viewBox="0 0 16 16">
+                                    <path d="M12 4.7l-.7-.7L8 7.3 4.7 4l-.7.7L7.3 8 4 11.3l.7.7L8 8.7l3.3 3.3.7-.7L8.7 8z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bx--row">
+                    <div class="bx--col-lg-16">
+                        <div class="visualization-card">
+                            <h3>Application Network</h3>
+                            <div id="app-network" class="visualization large"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Federations View -->
+        <div id="federations-view" class="view-container" style="display: none;">
+            <div class="bx--grid">
+                <div class="bx--row">
+                    <div class="bx--col-lg-16">
+                        <h1 class="page-title">Federations</h1>
+                        <p class="page-description">Federation configurations and activity timeline</p>
+                    </div>
+                </div>
+                
+                <div class="bx--row">
+                    <div class="bx--col-lg-16">
+                        <div class="visualization-card">
+                            <h3>Federation Timeline</h3>
+                            <div id="federation-timeline" class="visualization large"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MFA View -->
+        <div id="mfa-view" class="view-container" style="display: none;">
+            <div class="bx--grid">
+                <div class="bx--row">
+                    <div class="bx--col-lg-16">
+                        <h1 class="page-title">MFA Configuration</h1>
+                        <p class="page-description">Multi-factor authentication methods and policies</p>
+                    </div>
+                </div>
+                
+                <div class="bx--row">
+                    <div class="bx--col-lg-8">
+                        <div class="visualization-card">
+                            <h3>MFA Methods Distribution</h3>
+                            <div id="mfa-distribution" class="visualization"></div>
+                        </div>
+                    </div>
+                    <div class="bx--col-lg-8">
+                        <div class="visualization-card">
+                            <h3>MFA Policies</h3>
+                            <div id="mfa-policies" class="visualization"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Attributes View -->
+        <div id="attributes-view" class="view-container" style="display: none;">
+            <div class="bx--grid">
+                <div class="bx--row">
+                    <div class="bx--col-lg-16">
+                        <h1 class="page-title">User Attributes</h1>
+                        <p class="page-description">User attribute schemas and configurations</p>
+                    </div>
+                </div>
+                
+                <div class="bx--row">
+                    <div class="bx--col-lg-16">
+                        <div class="visualization-card">
+                            <h3>Attribute Types</h3>
+                            <div id="attributes-chart" class="visualization large"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="js/data-loader.js"></script>
+    <script src="js/visualizations.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
