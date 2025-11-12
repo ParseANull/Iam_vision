@@ -1,6 +1,11 @@
 """
 Fetch MFA configurations and policies from IBM Security Verify API.
 Outputs data to data/mfa_configurations.jsonl in JSONL format.
+
+SECURITY NOTE: This script fetches MFA method metadata (types, names, status)
+only. It does NOT fetch or store actual secrets, passwords, or authentication
+tokens. The data includes configuration information like "TOTP", "SMS", 
+"Email", which are method types, not sensitive credentials.
 """
 import json
 import logging
@@ -18,6 +23,25 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def sanitize_mfa_data(data):
+    """
+    Remove any potentially sensitive fields from MFA data.
+    Only keep method type, name, and status information.
+    
+    Args:
+        data: MFA method data
+        
+    Returns:
+        dict: Sanitized MFA data without secrets
+    """
+    # Fields that are safe to store (method metadata only)
+    safe_fields = ['id', 'type', 'method', 'name', 'enabled', 'status', 'protocol']
+    
+    if isinstance(data, dict):
+        return {k: v for k, v in data.items() if k in safe_fields}
+    return data
+
+
 def fetch_mfa_configurations(client):
     """
     Fetch all MFA configurations with pagination support.
@@ -26,7 +50,7 @@ def fetch_mfa_configurations(client):
         client: IBMVerifyClient instance
         
     Yields:
-        dict: MFA configuration data with metadata
+        dict: MFA configuration data with metadata (sanitized)
     """
     logger.info("Starting to fetch MFA configurations...")
     
@@ -58,20 +82,22 @@ def fetch_mfa_configurations(client):
                         detail_url = f"{config.mfa_url}/{method_id}"
                         detail_data = client._make_request(detail_url)
                         
+                        # Sanitize data to remove any potential secrets
                         enriched_method = {
                             'fetch_timestamp': datetime.utcnow().isoformat(),
                             'method_id': method_id,
-                            'data': detail_data
+                            'data': sanitize_mfa_data(detail_data)
                         }
                         yield enriched_method
                         total_fetched += 1
                     except Exception as e:
-                        logger.warning(f"Could not fetch details for MFA method {method_id}: {e}")
-                        # Still yield basic data
+                        # Log only the method ID and error type, not full error details
+                        logger.warning(f"Could not fetch details for MFA method {method_id}: {type(e).__name__}")
+                        # Still yield basic data (sanitized, method type/name only)
                         enriched_method = {
                             'fetch_timestamp': datetime.utcnow().isoformat(),
                             'method_id': method_id,
-                            'data': method
+                            'data': sanitize_mfa_data(method)
                         }
                         yield enriched_method
                         total_fetched += 1
@@ -106,6 +132,7 @@ def main():
         client = IBMVerifyClient()
         
         # Fetch and write MFA configurations
+        # Note: Only method types and metadata are stored, not actual secrets
         with open(output_file, 'w', encoding='utf-8') as f:
             for mfa_config in fetch_mfa_configurations(client):
                 f.write(json.dumps(mfa_config) + '\n')
