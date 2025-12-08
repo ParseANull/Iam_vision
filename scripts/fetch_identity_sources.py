@@ -149,7 +149,9 @@ def main():
         identity_sources = list(fetch_identity_sources(client, config))
         
         # Save to file
-        output_file = Path(f"data/Identity_Sources_{args.env}.jsonl")
+        output_dir = Path(config.OUTPUT_DIR)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_file = output_dir / 'identity_sources.jsonl'
         save_to_jsonl(identity_sources, output_file)
         
         logger.info(f"Successfully fetched {len(identity_sources)} identity sources")

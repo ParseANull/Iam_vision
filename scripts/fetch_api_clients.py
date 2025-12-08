@@ -150,7 +150,9 @@ def main():
         api_clients = list(fetch_api_clients(client, config))
         
         # Save to file
-        output_file = Path(f"data/API_Clients_{args.env}.jsonl")
+        output_dir = Path(config.OUTPUT_DIR)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_file = output_dir / 'api_clients.jsonl'
         save_to_jsonl(api_clients, output_file)
         
         logger.info(f"Successfully fetched {len(api_clients)} API clients")
