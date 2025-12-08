@@ -8,14 +8,15 @@ which is either fascinating or makes your head hurt depending on the day.
 Outputs data to data/attributes.jsonl in JSONL format.
 """
 # Standard library imports
+import argparse
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Local imports - leveraging our existing client
 from fetch_applications import IBMVerifyClient
-from config import config
+from config import get_config
 
 # Configure logging - breadcrumbs for troubleshooting
 # INFO level: chatty enough to know what's happening, not overwhelming
@@ -63,7 +64,11 @@ def fetch_attributes(client):
             
             # Extract attributes array - API uses different field names
             # (because consistency is for people who don't like debugging)
-            attributes = data.get('attributes', data.get('schemas', []))
+            # Sometimes the API returns a dict with 'attributes' key, sometimes a list directly
+            if isinstance(data, list):
+                attributes = data
+            else:
+                attributes = data.get('attributes', data.get('schemas', []))
             # Check if we got any results
             if not attributes:
                 # Empty result means we're done
@@ -73,17 +78,20 @@ def fetch_attributes(client):
             # Process each attribute in this page
             for attribute in attributes:
                 # Enrich with metadata
-                enriched_attribute = {
-                    'fetch_timestamp': datetime.utcnow().isoformat(),  # When fetched
+                enriched_attr = {
+                    'fetch_timestamp': datetime.now(timezone.utc).isoformat(),  # When fetched
                     'attribute_id': attribute.get('id', attribute.get('name')),  # ID or name
                     'data': attribute  # The actual attribute schema
                 }
                 # Yield this attribute (generator pattern)
-                yield enriched_attribute
+                yield enriched_attr
                 # Increment counter
                 total_fetched += 1
             
             # Check if there are more pages
+            # If data is a list, we got all results in one shot
+            if isinstance(data, list):
+                break
             total = data.get('total', 0)
             # If total is 0 or we've fetched everything, stop
             if total == 0 or offset + limit >= total:
@@ -101,13 +109,16 @@ def fetch_attributes(client):
     logger.info(f"Successfully fetched {total_fetched} attributes")
 
 
-def main():
+def main(config):
     """Main function to fetch attributes and save to JSONL.
     
     We orchestrate the whole process: validate config, create output directory,
     initialize the client, fetch attributes, and write them to a file.
     Using a generator means we stream data to disk instead of loading
     everything into memory (which would be a bad time with large datasets).
+    
+    Args:
+        config (Config): Configuration instance with credentials loaded.
     """
     try:
         # Validate configuration (fail fast with clear errors)
@@ -122,7 +133,7 @@ def main():
         output_file = output_dir / 'attributes.jsonl'
         
         # Initialize API client (handles authentication)
-        client = IBMVerifyClient()
+        client = IBMVerifyClient(config)
         
         # Fetch and write attributes in streaming fashion
         # Open file in write mode with UTF-8 encoding
@@ -142,4 +153,13 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Fetch attributes from IBM Security Verify')
+    parser.add_argument('--env', type=str, help='Environment name (e.g., bidevt, wiprt)')
+    args = parser.parse_args()
+    
+    # Load config for the specified environment
+    config = get_config(args.env)
+    
+    # Now run main with the loaded config
+    main(config)

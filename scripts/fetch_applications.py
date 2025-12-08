@@ -8,10 +8,11 @@ Outputs data to data/applications.jsonl in JSONL format (one JSON object per lin
 because newline-delimited JSON is our jam for streaming data).
 """
 # Standard library imports - the ones that come with Python
+import argparse
 import json
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Third-party imports - the fancy stuff we pip installed
@@ -20,12 +21,12 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 # Local imports - our own masterpieces
-from config import config
+from config import get_config
 
 # Configure logging - we're setting up our breadcrumb trail
-# INFO level means we'll see what's happening without drowning in details
+# DEBUG level for troubleshooting credentials
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 # Create our logger instance - this is how we shout into the void
@@ -40,14 +41,18 @@ class IBMVerifyClient:
     the API behave nicely even when it's having a bad day.
     """
     
-    def __init__(self):
+    def __init__(self, config_instance=None):
         """Initialize the IBM Verify API client.
         
         We set up our config, prepare token storage, and create a session
         with retry logic. Because networks are flaky and APIs are moody.
+        
+        Args:
+            config_instance (Config, optional): Configuration instance to use.
+                                               If None, uses module-level config.
         """
         # Store our configuration reference for later use
-        self.config = config
+        self.config = config_instance if config_instance is not None else config
         # Token storage - starts as None until we authenticate
         self.access_token = None
         # Track when our token expires (Unix timestamp)
@@ -103,6 +108,9 @@ class IBMVerifyClient:
         
         # Token is expired or missing - time to get a new one
         logger.info("Obtaining new access token...")
+        logger.debug(f"Token URL: {self.config.token_url}")
+        logger.debug(f"Client ID: {self.config.CLIENT_ID}")
+        logger.debug(f"Tenant: {self.config.TENANT_URL}")
         
         try:
             # Make POST request to token endpoint with credentials
@@ -172,12 +180,67 @@ class IBMVerifyClient:
             )
             # Raise an exception if we got an HTTP error status
             response.raise_for_status()
+            
+            # Log response details for debugging
+            logger.debug(f"Response status: {response.status_code}")
+            logger.debug(f"Response content-type: {response.headers.get('content-type')}")
+            logger.debug(f"Response body (first 500 chars): {response.text[:500]}")
+            
             # Parse and return the JSON response body
             return response.json()
             
         except requests.exceptions.RequestException as e:
             # Request failed - log the error and re-raise
             logger.error(f"API request failed: {e}")
+            raise
+    
+    def _make_scim_request(self, url, params=None):
+        """Make an authenticated SCIM API request.
+        
+        SCIM (System for Cross-domain Identity Management) endpoints require
+        a different Accept header (application/scim+json) than standard JSON APIs.
+        This method is specifically for v2.0 Groups and Users endpoints.
+        
+        Args:
+            url (str): The full URL to request.
+            params (dict, optional): Query parameters to include in the request.
+            
+        Returns:
+            dict: Parsed JSON response from the API.
+            
+        Raises:
+            requests.exceptions.RequestException: If the request fails.
+        """
+        # Fetch a valid access token (may reuse cached token)
+        token = self._get_access_token()
+        # Build our request headers with authentication and SCIM content type
+        headers = {
+            'Authorization': f'Bearer {token}',  # OAuth2 bearer token
+            'Accept': 'application/scim+json'  # SCIM requires this specific content type
+        }
+        
+        try:
+            # Make the GET request with our configured session
+            response = self.session.get(
+                url,
+                headers=headers,
+                params=params,  # Query parameters (can be None)
+                timeout=self.config.REQUEST_TIMEOUT
+            )
+            # Raise an exception if we got an HTTP error status
+            response.raise_for_status()
+            
+            # Log response details for debugging
+            logger.debug(f"SCIM Response status: {response.status_code}")
+            logger.debug(f"SCIM Response content-type: {response.headers.get('content-type')}")
+            logger.debug(f"SCIM Response body (first 500 chars): {response.text[:500]}")
+            
+            # Parse and return the JSON response body
+            return response.json()
+            
+        except requests.exceptions.RequestException as e:
+            # Request failed - log the error and re-raise
+            logger.error(f"SCIM API request failed: {e}")
             raise
     
     def fetch_applications(self):
@@ -214,7 +277,9 @@ class IBMVerifyClient:
                 data = self._make_request(self.config.applications_url, params)
                 
                 # Extract applications array from response
-                applications = data.get('applications', [])
+                # The API returns applications under _embedded.applications key (v1.0 structure)
+                embedded = data.get('_embedded', {})
+                applications = embedded.get('applications', [])
                 # Check if we got any results
                 if not applications:
                     # Empty page means we've reached the end
@@ -223,9 +288,20 @@ class IBMVerifyClient:
                 
                 # Process each application in this page
                 for app in applications:
+                    # Extract application ID from the href link
+                    # The API returns ID in _links.self.href like "/appaccess/v1.0/applications/123456"
+                    app_id = None
+                    if '_links' in app and 'self' in app['_links']:
+                        href = app['_links']['self'].get('href', '')
+                        # Extract ID from the URL (last part after final /)
+                        if href:
+                            app_id = href.split('/')[-1]
+                            # Add the ID to the app data for easier access later
+                            app['id'] = app_id
+                    
                     # Enrich application data with metadata
                     enriched_app = {
-                        'fetch_timestamp': datetime.utcnow().isoformat(),  # When we got it
+                        'fetch_timestamp': datetime.now(timezone.utc).isoformat(),  # When we got it
                         'data': app  # The actual application data
                     }
                     # Yield this application (generator pattern)
@@ -251,13 +327,16 @@ class IBMVerifyClient:
         logger.info(f"Successfully fetched {total_fetched} applications")
 
 
-def main():
+def main(config):
     """Main function to fetch applications and save to JSONL.
     
     This is our entry point. We validate config, set up output paths,
     create our client, and stream application data to a JSONL file.
     Using a generator pattern means we write as we fetch, which is
     memory-efficient even for large datasets.
+    
+    Args:
+        config (Config): Configuration instance with credentials loaded.
     """
     try:
         # Validate configuration before doing anything else
@@ -273,7 +352,7 @@ def main():
         output_file = output_dir / 'applications.jsonl'
         
         # Initialize our API client (handles auth and requests)
-        client = IBMVerifyClient()
+        client = IBMVerifyClient(config)
         
         # Fetch and write applications in streaming fashion
         # We open file in write mode with UTF-8 encoding
@@ -294,4 +373,13 @@ def main():
 
 # Standard Python idiom - run main() if executed directly
 if __name__ == '__main__':
-    main()
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Fetch applications from IBM Security Verify')
+    parser.add_argument('--env', type=str, help='Environment name (e.g., bidevt, wiprt)')
+    args = parser.parse_args()
+    
+    # Load config for the specified environment
+    config = get_config(args.env)
+    
+    # Now run main with the loaded config
+    main(config)

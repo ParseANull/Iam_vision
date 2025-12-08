@@ -13,14 +13,15 @@ tokens. The data includes configuration information like "TOTP", "SMS",
 "Email", which are method types, not sensitive credentials.
 """
 # Standard library imports
+import argparse
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Local imports - our battle-tested client
 from fetch_applications import IBMVerifyClient
-from config import config
+from config import get_config
 
 # Configure logging - because debugging blind is no fun
 # INFO level: enough to know what's happening, not drowning in detail
@@ -51,6 +52,13 @@ def sanitize_mfa_data(data):
     safe_fields = ['id', 'type', 'method', 'name', 'enabled', 'status', 'protocol']
     
     # Only process if we got a dictionary
+    if not isinstance(data, dict):
+        return {}
+    
+    # Build sanitized dictionary with only safe fields
+    return {key: data[key] for key in safe_fields if key in data}
+
+
 def fetch_mfa_configurations(client):
     """Fetch all MFA configurations with pagination support.
     
@@ -82,19 +90,11 @@ def fetch_mfa_configurations(client):
             }
             
             logger.info(f"Fetching MFA configs (offset={offset}, limit={limit})...")
-            # Fetch this page of MFA methods
-            data = client._make_request(config.mfa_url, params)
-            params = {
-                'limit': limit,
-                'offset': offset
-            }
-            
-            logger.info(f"Fetching MFA configs (offset={offset}, limit={limit})...")
+            # Fetch this page of MFA authenticators
             data = client._make_request(config.mfa_url, params)
             
-            # Handle different response structures (API inconsistency strikes again)
-            # Sometimes 'methods', sometimes 'authnMethods' - we check both
-            mfa_methods = data.get('methods', data.get('authnMethods', []))
+            # The v1.0/authenticators endpoint uses 'authenticators' key
+            mfa_methods = data.get('authenticators', [])
             # Check if we got any results
             if not mfa_methods:
                 # No more methods - we're done
@@ -116,7 +116,7 @@ def fetch_mfa_configurations(client):
                         # Sanitize data to remove any potential secrets
                         # We're extra cautious with MFA data
                         enriched_method = {
-                            'fetch_timestamp': datetime.utcnow().isoformat(),  # When
+                            'fetch_timestamp': datetime.now(timezone.utc).isoformat(),  # When
                             'method_id': method_id,  # Which method
                             'data': sanitize_mfa_data(detail_data)  # Sanitized data
                         }
@@ -131,7 +131,7 @@ def fetch_mfa_configurations(client):
                         # Still yield basic data (sanitized, method type/name only)
                         # Partial data is better than no data
                         enriched_method = {
-                            'fetch_timestamp': datetime.utcnow().isoformat(),
+                            'fetch_timestamp': datetime.now(timezone.utc).isoformat(),
                             'method_id': method_id,
                             'data': sanitize_mfa_data(method)  # Fallback to basic data
                         }
@@ -156,13 +156,16 @@ def fetch_mfa_configurations(client):
     logger.info(f"Successfully fetched {total_fetched} MFA configurations")
 
 
-def main():
+def main(config):
     """Main function to fetch MFA configurations and save to JSONL.
     
     Our standard orchestration pattern, but with extra paranoia because
     we're dealing with MFA configs. We validate, initialize, fetch, and
     write - all while keeping security front of mind. All data gets
     sanitized before it hits the disk.
+    
+    Args:
+        config (Config): Configuration instance with credentials loaded.
     """
     try:
         # Validate configuration (always the first step)
@@ -177,7 +180,7 @@ def main():
         output_file = output_dir / 'mfa_configurations.jsonl'
         
         # Initialize API client
-        client = IBMVerifyClient()
+        client = IBMVerifyClient(config)
         
         # Fetch and write MFA configurations
         # Important: Only method types and metadata are stored, not actual secrets
@@ -199,4 +202,13 @@ def main():
 
 # Standard Python entry point
 if __name__ == '__main__':
-    main()
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Fetch MFA configurations from IBM Security Verify')
+    parser.add_argument('--env', type=str, help='Environment name (e.g., bidevt, wiprt)')
+    args = parser.parse_args()
+    
+    # Load config for the specified environment
+    config = get_config(args.env)
+    
+    # Now run main with the loaded config
+    main(config)

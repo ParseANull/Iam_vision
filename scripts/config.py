@@ -7,11 +7,8 @@ hardcoding secrets is how we end up on Reddit's "bad code" threads.
 Loads credentials and settings from environment variables.
 """
 import os
+from pathlib import Path
 from dotenv import load_dotenv
-
-# Load environment variables from .env file
-# We're loading our secrets from .env like responsible adults
-load_dotenv()
 
 
 class Config:
@@ -22,12 +19,54 @@ class Config:
     thank present us for this moment of clarity.
     """
     
-    # API Credentials - the keys to the kingdom
-    # We pull these from environment variables for security
-    TENANT_URL = os.getenv('IBM_VERIFY_TENANT_URL', '')
-    CLIENT_ID = os.getenv('IBM_VERIFY_CLIENT_ID', '')
-    CLIENT_SECRET = os.getenv('IBM_VERIFY_CLIENT_SECRET', '')
-    API_VERSION = os.getenv('IBM_VERIFY_API_VERSION', 'v2.0')
+    def __init__(self, env_name=None):
+        """Initialize configuration by reading from environment variables.
+        
+        We load these in __init__ so they're evaluated when the instance
+        is created, not when the class is defined. This lets us reload
+        config for different environments.
+        
+        Args:
+            env_name (str, optional): Environment name to load (e.g., 'bidevt', 'wiprt').
+                                     If provided, loads from .env.{env_name} file.
+                                     If None, loads from default .env file or existing env vars.
+        """
+        # Load environment-specific .env file if env_name is provided
+        if env_name:
+            # Get the project root directory (one level up from scripts/)
+            project_root = Path(__file__).parent.parent
+            env_file = project_root / f'.env.{env_name}'
+            if env_file.exists():
+                # Override=True ensures we reload even if vars are already set
+                load_dotenv(env_file, override=True)
+            else:
+                raise FileNotFoundError(f"Environment file not found: {env_file}")
+        else:
+            # Load from default .env file if it exists
+            load_dotenv()
+        
+        # Load credentials from environment variables
+        self.TENANT_URL = os.getenv('IBM_VERIFY_TENANT_URL', '')
+        self.CLIENT_ID = os.getenv('IBM_VERIFY_CLIENT_ID', '')
+        self.CLIENT_SECRET = os.getenv('IBM_VERIFY_CLIENT_SECRET', '')
+        # Default to v1.0 for applications endpoint (can be overridden per-endpoint)
+        self.API_VERSION = os.getenv('IBM_VERIFY_API_VERSION', 'v1.0')
+        
+        # Request settings - we're patient, but not infinitely so
+        # Timeout in seconds before we give up on a request
+        self.REQUEST_TIMEOUT = int(os.getenv('REQUEST_TIMEOUT', '30'))
+        # How many times we'll retry before admitting defeat
+        self.MAX_RETRIES = int(os.getenv('MAX_RETRIES', '3'))
+        # Exponential backoff multiplier (patience grows with each retry)
+        self.RETRY_BACKOFF = float(os.getenv('RETRY_BACKOFF', '2.0'))
+        
+        # Pagination - fetching data in reasonable chunks
+        # Default page size for paginated API requests
+        self.DEFAULT_PAGE_SIZE = int(os.getenv('DEFAULT_PAGE_SIZE', '100'))
+        
+        # Output settings - where we stash the goods
+        # Directory path for storing fetched data files
+        self.OUTPUT_DIR = os.getenv('OUTPUT_DIR', 'data')
     
     # API Endpoints - we use properties for dynamic URL construction
     @property
@@ -67,18 +106,28 @@ class Config:
         Returns:
             str: The URL for federation configurations.
         """
-        # Construct federations endpoint
-        return f"{self.base_url}/federations"
+        # Federations use v1.0 SAML endpoint per IBM Verify API docs
+        return f"{self.TENANT_URL}/v1.0/saml/federations"
     
     @property
     def mfa_url(self):
         """Get the MFA configurations endpoint.
         
         Returns:
-            str: The URL for MFA method configurations.
+            str: The URL for MFA authenticators configurations.
         """
-        # Build MFA endpoint URL
-        return f"{self.base_url}/authnmethods"
+        # Use v1.0 authenticators endpoint - returns configured MFA authenticators
+        return f"{self.TENANT_URL}/v1.0/authenticators"
+    
+    @property
+    def factors_url(self):
+        """Get the MFA factors endpoint.
+        
+        Returns:
+            str: The URL for MFA factors (v2.0 endpoint).
+        """
+        # Use v2.0 factors endpoint - returns MFA factor configurations
+        return f"{self.TENANT_URL}/v2.0/factors"
     
     @property
     def attributes_url(self):
@@ -87,24 +136,19 @@ class Config:
         Returns:
             str: The URL for user attribute schemas.
         """
-        # Construct attributes endpoint
-        return f"{self.base_url}/attributes"
+        # Attributes use v1.0 endpoint per IBM Verify API docs
+        return f"{self.TENANT_URL}/v1.0/attributes"
     
-    # Request settings - we're patient, but not infinitely so
-    # Timeout in seconds before we give up on a request
-    REQUEST_TIMEOUT = int(os.getenv('REQUEST_TIMEOUT', '30'))
-    # How many times we'll retry before admitting defeat
-    MAX_RETRIES = int(os.getenv('MAX_RETRIES', '3'))
-    # Exponential backoff multiplier (patience grows with each retry)
-    RETRY_BACKOFF = float(os.getenv('RETRY_BACKOFF', '2.0'))
+    @property
+    def groups_url(self):
+        """Get the groups endpoint.
+        
+        Returns:
+            str: The URL for group data.
+        """
+        # Groups use v2.0 endpoint per Groups Management Version 2.0 docs
+        return f"{self.TENANT_URL}/v2.0/Groups"
     
-    # Pagination - fetching data in reasonable chunks
-    # Default page size for paginated API requests
-    DEFAULT_PAGE_SIZE = int(os.getenv('DEFAULT_PAGE_SIZE', '100'))
-    
-    # Output settings - where we stash the goods
-    # Directory path for storing fetched data files
-    OUTPUT_DIR = os.getenv('OUTPUT_DIR', 'data')
     
     def validate(self):
         """Validate that all required configuration is present.
@@ -132,6 +176,16 @@ class Config:
         return True
 
 
-# Create a global config instance
-# We instantiate this once and reuse it everywhere (singleton pattern, sort of)
-config = Config()
+# Helper function to create a config instance for a specific environment
+# Use this instead of the old global singleton pattern
+def get_config(env_name=None):
+    """Get a Config instance for the specified environment.
+    
+    Args:
+        env_name (str, optional): Environment name (e.g., 'bidevt', 'wiprt').
+                                 If None, uses default .env or existing env vars.
+    
+    Returns:
+        Config: Configured instance ready to use.
+    """
+    return Config(env_name)
