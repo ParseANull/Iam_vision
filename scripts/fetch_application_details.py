@@ -8,14 +8,16 @@ to actually reading the chapters.
 Reads application IDs from applications.jsonl and outputs to data/application_details.jsonl.
 """
 # Standard library imports
+import argparse
 import json
 import logging
-from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Local imports - reusing our client from the applications script
 from fetch_applications import IBMVerifyClient
-from config import config
+from config import get_config
 
 # Configure logging - keeping track of our progress
 # INFO level gives us enough detail without being overwhelming
@@ -75,7 +77,7 @@ def fetch_application_details(client, app_id):
         
         # Package everything up with metadata
         return {
-            'fetch_timestamp': datetime.utcnow().isoformat(),  # When we got it
+            'fetch_timestamp': datetime.now(timezone.utc).isoformat(),  # When we got it
             'application_id': app_id,  # Which app this is
             'data': data  # All the juicy details
         }
@@ -87,13 +89,16 @@ def fetch_application_details(client, app_id):
         return None
 
 
-def main():
+def main(config):
     """Main function to fetch application details and save to JSONL.
     
     This is the orchestration layer. We read application IDs from the
     applications.jsonl file, fetch detailed info for each one, and write
     the results to a new file. We track success/failure counts because
     APIs are fickle and some requests may fail.
+    
+    Args:
+        config (Config): Configuration instance with credentials loaded.
     """
     try:
         # Validate configuration first (fail fast if something's wrong)
@@ -114,7 +119,7 @@ def main():
             return
         
         # Initialize our API client (handles authentication)
-        client = IBMVerifyClient()
+        client = IBMVerifyClient(config)
         
         # Read application IDs from the input file
         # We create a list to hold all the IDs we find
@@ -134,23 +139,55 @@ def main():
         # Log how many apps we'll be processing
         logger.info(f"Found {len(app_ids)} applications to fetch details for")
         
-        # Fetch and write application details
+        # If no applications to process, exit early
+        if len(app_ids) == 0:
+            logger.info("No applications to fetch details for - exiting")
+            logger.info(f"Details saved to {output_file}")
+            return
+        
+        # Pre-authenticate the client before starting parallel workers
+        # This prevents multiple threads from trying to get tokens simultaneously
+        logger.info("Pre-authenticating client...")
+        client._get_access_token()
+        logger.info("Client authenticated successfully")
+        
+        # Fetch and write application details in parallel
+        # We use ThreadPoolExecutor because the work is I/O-bound (waiting on API calls)
         # Track how many succeeded (some might fail)
         successful = 0
+        # Use up to 10 concurrent workers (API rate limiting consideration)
+        max_workers = 10
+        
+        logger.info(f"Fetching details for {len(app_ids)} applications using {max_workers} parallel workers")
+        
         # Open output file in write mode
         with open(output_file, 'w', encoding='utf-8') as f:
-            # Iterate through app IDs with progress counter
-            for i, app_id in enumerate(app_ids, 1):
-                # Log progress (1-indexed for human-friendliness)
-                logger.info(f"Fetching details for application {i}/{len(app_ids)}: {app_id}")
-                # Fetch details for this application
-                details = fetch_application_details(client, app_id)
-                # Check if fetch succeeded
-                if details:
-                    # Write this application's details as a JSON line
-                    f.write(json.dumps(details) + '\n')
-                    # Increment success counter
-                    successful += 1
+            # Create a thread pool for parallel execution
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit all fetch tasks to the executor
+                # We create a dict to track which future corresponds to which app_id
+                future_to_app_id = {
+                    executor.submit(fetch_application_details, client, app_id): app_id
+                    for app_id in app_ids
+                }
+                
+                # Process results as they complete (not in submission order)
+                for i, future in enumerate(as_completed(future_to_app_id), 1):
+                    app_id = future_to_app_id[future]
+                    try:
+                        # Get the result from this completed future
+                        details = future.result()
+                        # Check if fetch succeeded
+                        if details:
+                            # Write this application's details as a JSON line
+                            f.write(json.dumps(details) + '\n')
+                            # Increment success counter
+                            successful += 1
+                        # Log progress every 10 apps or at the end
+                        if i % 10 == 0 or i == len(app_ids):
+                            logger.info(f"Progress: {i}/{len(app_ids)} applications processed ({successful} successful)")
+                    except Exception as e:
+                        logger.error(f"Error processing application {app_id}: {e}")
         
         # Log final statistics
         logger.info(f"Successfully fetched details for {successful}/{len(app_ids)} applications")
@@ -164,4 +201,13 @@ def main():
 
 # Standard Python entry point pattern
 if __name__ == '__main__':
-    main()
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Fetch application details from IBM Security Verify')
+    parser.add_argument('--env', type=str, help='Environment name (e.g., bidevt, wiprt)')
+    args = parser.parse_args()
+    
+    # Load config for the specified environment
+    config = get_config(args.env)
+    
+    # Now run main with the loaded config
+    main(config)
