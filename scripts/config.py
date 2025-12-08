@@ -149,6 +149,26 @@ class Config:
         # Groups use v2.0 endpoint per Groups Management Version 2.0 docs
         return f"{self.TENANT_URL}/v2.0/Groups"
     
+    @property
+    def identity_sources_url(self):
+        """Get the identity sources endpoint.
+        
+        Returns:
+            str: The URL for identity source configurations.
+        """
+        # Identity sources use v1.0 endpoint - includes SAML, LDAP, AD connectors
+        return f"{self.TENANT_URL}/v1.0/identitysources"
+    
+    @property
+    def api_clients_url(self):
+        """Get the API clients endpoint.
+        
+        Returns:
+            str: The URL for API client configurations.
+        """
+        # API clients use v1.0 endpoint - OAuth/OIDC client configurations
+        return f"{self.TENANT_URL}/v1.0/apiclients"
+    
     
     def validate(self):
         """Validate that all required configuration is present.
