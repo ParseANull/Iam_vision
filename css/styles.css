@@ -415,6 +415,18 @@ body[data-theme="dark"] .axis line {
     order: -1;
     visibility: visible !important;
     opacity: 1 !important;
+    gap: 0.5rem;
+}
+
+.environment-selector-label {
+    color: #f4f4f4;
+    font-size: 0.875rem;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+body[data-theme="dark"] .environment-selector-label {
+    color: #f4f4f4;
 }
 
 .bx--header .bx--multi-select--inline {
