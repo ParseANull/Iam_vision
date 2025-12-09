@@ -1214,9 +1214,9 @@ function initializeDataLimitingControl() {
         
         console.log(`Data limit set to ${value}%`);
         
-        // Reload data with new limit if environments are selected
+        // Reload view with new limit if environments are selected
         if (AppState.selectedEnvironments.length > 0) {
-            updateCurrentView();
+            updateView(AppState.currentView);
         }
     });
     
