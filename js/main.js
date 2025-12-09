@@ -179,6 +179,13 @@ function loadUserPreferences() {
     } catch (error) {
         console.warn('Failed to load preferences:', error);
     }
+    
+    // Initialize theme
+    const storedTheme = localStorage.getItem('iamvision_theme');
+    if (storedTheme) {
+        AppState.theme = storedTheme;
+    }
+    document.body.setAttribute('data-theme', AppState.theme);
 }
 
 /**
@@ -691,9 +698,9 @@ function updateView(viewName) {
     
     // Update navigation active state
     document.querySelectorAll('.bx--header__menu-item').forEach(item => {
-        item.classList.remove('active');
+        item.classList.remove('bx--header__menu-item--current');
     });
-    document.querySelector(`[data-view="${viewName}"]`)?.classList.add('active');
+    document.querySelector(`[data-view="${viewName}"]`)?.classList.add('bx--header__menu-item--current');
     
     // Render view-specific visualizations
     switch (viewName) {
@@ -821,6 +828,7 @@ function setupThemeSwitcher() {
     themeSwitcher.addEventListener('click', () => {
         AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
         document.body.setAttribute('data-theme', AppState.theme);
+        localStorage.setItem('iamvision_theme', AppState.theme);
         
         // Redraw visualizations with new theme
         if (AppState.data) {

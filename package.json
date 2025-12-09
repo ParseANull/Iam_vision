@@ -1,0 +1,18 @@
+{
+  "name": "iam-vision",
+  "version": "1.0.0",
+  "description": "IBM Security Verify IAM Dashboard Visualization",
+  "scripts": {
+    "test": "cucumber-js",
+    "test:headed": "cucumber-js --parallel 1",
+    "test:report": "cucumber-js --format html:reports/test-report.html"
+  },
+  "keywords": ["iam", "visualization", "ibm-security-verify"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^10.0.1",
+    "@playwright/test": "^1.40.1",
+    "playwright": "^1.40.1"
+  }
+}
