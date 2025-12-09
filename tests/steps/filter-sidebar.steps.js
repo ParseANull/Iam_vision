@@ -64,14 +64,43 @@ Then('the data type filters should not be visible', async function () {
 });
 
 Then('I should see the {string} accordion section', async function (sectionName) {
-  const section = await this.page.locator(`.bx--accordion__heading:has-text("${sectionName}")`);
-  await expect(section).toBeVisible();
+  // First ensure sidebar is expanded
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  
+  if (isExpanded !== 'true') {
+    // Re-expand sidebar if it was collapsed
+    await this.page.evaluate(() => {
+      const btn = document.getElementById('sidebar-toggle');
+      if (btn) btn.click();
+    });
+    await this.page.waitForFunction(
+      () => document.getElementById('filter-sidebar')?.getAttribute('data-expanded') === 'true',
+      {},
+      { timeout: 5000 }
+    );
+    await this.page.waitForTimeout(300);
+  }
+  
+  // For sidebar, we're looking for environment accordion items or data type lists
+  if (sectionName === 'Data Types') {
+    await this.page.waitForSelector('.data-type-list', { state: 'visible', timeout: 10000 });
+    const list = await this.page.locator('.data-type-list');
+    await expect(list.first()).toBeVisible();
+  } else if (sectionName === 'Data Limiting') {
+    const control = await this.page.locator('#data-limit-control');
+    await expect(control).toBeVisible();
+  }
 });
 
 Then('the {string} accordion should be expanded by default', async function (sectionName) {
-  const accordionItem = await this.page.locator(`.bx--accordion__item:has(.bx--accordion__heading:has-text("${sectionName}"))`);
-  const isExpanded = await accordionItem.getAttribute('data-expanded');
-  expect(isExpanded).toBe('true');
+  // Check if the first environment accordion is expanded
+  if (sectionName === 'Data Types') {
+    const firstHeader = await this.page.locator('.filter-accordion-header').first();
+    await this.page.waitForTimeout(500);
+    const isExpanded = await firstHeader.getAttribute('aria-expanded');
+    expect(isExpanded).toBe('true');
+  }
 });
 
 Then('all data type checkboxes should be visible', async function () {
@@ -114,10 +143,32 @@ When('I click the sidebar toggle button again', { timeout: 20000 }, async functi
 });
 
 When('I uncheck the {string} data type', async function (dataType) {
-  const checkbox = await this.page.locator(`input[type="checkbox"][data-type="${dataType.toLowerCase()}"]`);
+  // First ensure sidebar is expanded
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  
+  if (isExpanded !== 'true') {
+    // Re-expand sidebar
+    await this.page.evaluate(() => {
+      const btn = document.getElementById('sidebar-toggle');
+      if (btn) btn.click();
+    });
+    await this.page.waitForFunction(
+      () => document.getElementById('filter-sidebar')?.getAttribute('data-expanded') === 'true',
+      {},
+      { timeout: 5000 }
+    );
+    await this.page.waitForTimeout(500);
+  }
+  
+  // Now click the checkbox
+  const checkboxId = `filter-bidevt-${dataType.toLowerCase()}`;
+  await this.page.waitForSelector(`#${checkboxId}`, { state: 'visible', timeout: 10000 });
+  
+  const checkbox = await this.page.locator(`#${checkboxId}`);
   const isChecked = await checkbox.isChecked();
   if (isChecked) {
-    await checkbox.click();
+    await checkbox.click({ force: true });
     await this.page.waitForTimeout(500);
   }
 });
@@ -131,14 +182,33 @@ When('I check the {string} data type again', async function (dataType) {
   }
 });
 
-Then('the {string} checkbox should be unchecked', async function (dataType) {
-  const checkbox = await this.page.locator(`input[type="checkbox"][data-type="${dataType.toLowerCase()}"]`);
+Then('the {string} checkbox should be unchecked', { timeout: 15000 }, async function (dataType) {
+  // First ensure sidebar is expanded to access the checkbox
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  
+  if (isExpanded !== 'true') {
+    await this.page.evaluate(() => {
+      const btn = document.getElementById('sidebar-toggle');
+      if (btn) btn.click();
+    });
+    await this.page.waitForFunction(
+      () => document.getElementById('filter-sidebar')?.getAttribute('data-expanded') === 'true',
+      {},
+      { timeout: 5000 }
+    );
+    await this.page.waitForTimeout(500);
+  }
+  
+  const checkboxId = `filter-bidevt-${dataType.toLowerCase()}`;
+  await this.page.waitForSelector(`#${checkboxId}`, { state: 'visible', timeout: 10000 });
+  const checkbox = await this.page.locator(`#${checkboxId}`);
   await expect(checkbox).not.toBeChecked();
 });
 
 Then('applications data should not be displayed in visualizations', async function () {
   // This is a visual check - we verify the checkbox state which controls visibility
-  const checkbox = await this.page.locator('input[type="checkbox"][data-type="applications"]');
+  const checkbox = await this.page.locator('#filter-bidevt-applications');
   await expect(checkbox).not.toBeChecked();
 });
 

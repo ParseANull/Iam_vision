@@ -26,16 +26,19 @@ Feature: Filter Sidebar
     Then the filter sidebar should expand
     And the data type filters should be visible
 
+  @sidebar
   Scenario: Accordion sections are present
     When I click the sidebar toggle button
     Then I should see the "Data Types" accordion section
     And I should see the "Data Limiting" accordion section
 
+  @sidebar
   Scenario: Data Types accordion default state
     When I click the sidebar toggle button
     Then the "Data Types" accordion should be expanded by default
     And all data type checkboxes should be visible
 
+  @sidebar
   Scenario: Toggle individual data type
     When I click the sidebar toggle button
     And I uncheck the "Applications" data type
