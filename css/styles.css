@@ -931,25 +931,21 @@ body[data-theme="dark"] .axis line {
 }
 
 /* Dark theme */
-[data-carbon-theme="g100"] .environment-legend,
-[data-carbon-theme="g90"] .environment-legend {
+body[data-theme="dark"] .environment-legend {
     background-color: #262626;
     border-color: #525252;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-[data-carbon-theme="g100"] .environment-legend-header,
-[data-carbon-theme="g90"] .environment-legend-header {
+body[data-theme="dark"] .environment-legend-header {
     color: #f4f4f4;
 }
 
-[data-carbon-theme="g100"] .environment-legend-item,
-[data-carbon-theme="g90"] .environment-legend-item {
+body[data-theme="dark"] .environment-legend-item {
     color: #f4f4f4;
 }
 
-[data-carbon-theme="g100"] .environment-legend-color,
-[data-carbon-theme="g90"] .environment-legend-color {
+body[data-theme="dark"] .environment-legend-color {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
