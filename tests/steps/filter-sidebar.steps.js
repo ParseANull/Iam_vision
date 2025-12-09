@@ -1,6 +1,18 @@
 const { When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 
+// Helper to convert display names to internal data type names
+function convertDataTypeName(displayName) {
+  const nameMap = {
+    'mfa': 'mfa_config',
+    'mfa config': 'mfa_config',
+    'applications': 'applications',
+    'federations': 'federations',
+    'attributes': 'attributes'
+  };
+  return nameMap[displayName.toLowerCase()] || displayName.toLowerCase();
+}
+
 // Sidebar steps
 Then('the filter sidebar should be expanded after selecting environment', async function () {
   // Sidebar auto-expands when first environment is selected
@@ -142,7 +154,7 @@ When('I click the sidebar toggle button again', { timeout: 20000 }, async functi
   await this.page.waitForTimeout(300); // Animation time
 });
 
-When('I uncheck the {string} data type', async function (dataType) {
+When('I uncheck the {string} data type', { timeout: 20000 }, async function (dataType) {
   // First ensure sidebar is expanded
   const sidebar = await this.page.locator('#filter-sidebar');
   const isExpanded = await sidebar.getAttribute('data-expanded');
@@ -161,8 +173,9 @@ When('I uncheck the {string} data type', async function (dataType) {
     await this.page.waitForTimeout(500);
   }
   
-  // Now click the checkbox
-  const checkboxId = `filter-bidevt-${dataType.toLowerCase()}`;
+  // Convert display name to internal name
+  const internalName = convertDataTypeName(dataType);
+  const checkboxId = `filter-bidevt-${internalName}`;
   await this.page.waitForSelector(`#${checkboxId}`, { state: 'visible', timeout: 10000 });
   
   const checkbox = await this.page.locator(`#${checkboxId}`);
@@ -212,9 +225,32 @@ Then('applications data should not be displayed in visualizations', async functi
   await expect(checkbox).not.toBeChecked();
 });
 
-Then('both {string} and {string} should be unchecked', async function (type1, type2) {
-  const checkbox1 = await this.page.locator(`input[type="checkbox"][data-type="${type1.toLowerCase()}"]`);
-  const checkbox2 = await this.page.locator(`input[type="checkbox"][data-type="${type2.toLowerCase()}"]`);
+Then('both {string} and {string} should be unchecked', { timeout: 15000 }, async function (type1, type2) {
+  // First ensure sidebar is expanded
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  
+  if (isExpanded !== 'true') {
+    await this.page.evaluate(() => {
+      const btn = document.getElementById('sidebar-toggle');
+      if (btn) btn.click();
+    });
+    await this.page.waitForFunction(
+      () => document.getElementById('filter-sidebar')?.getAttribute('data-expanded') === 'true',
+      {},
+      { timeout: 5000 }
+    );
+    await this.page.waitForTimeout(500);
+  }
+  
+  const checkbox1Id = `filter-bidevt-${type1.toLowerCase()}`;
+  const checkbox2Id = `filter-bidevt-${type2.toLowerCase()}`;
+  
+  await this.page.waitForSelector(`#${checkbox1Id}`, { state: 'visible', timeout: 10000 });
+  await this.page.waitForSelector(`#${checkbox2Id}`, { state: 'visible', timeout: 10000 });
+  
+  const checkbox1 = await this.page.locator(`#${checkbox1Id}`);
+  const checkbox2 = await this.page.locator(`#${checkbox2Id}`);
   await expect(checkbox1).not.toBeChecked();
   await expect(checkbox2).not.toBeChecked();
 });
@@ -250,10 +286,28 @@ Then('the URL should reflect the data type selection', async function () {
   expect(url).toContain('dataTypes=');
 });
 
-Then('the {string} data type should still be unchecked', async function (dataType) {
-  await this.page.click('.bx--header__action--menu');
-  await this.page.waitForTimeout(300);
-  const checkbox = await this.page.locator(`input[type="checkbox"][data-type="${dataType.toLowerCase()}"]`);
+Then('the {string} data type should still be unchecked', { timeout: 15000 }, async function (dataType) {
+  // Ensure sidebar is expanded
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  
+  if (isExpanded !== 'true') {
+    await this.page.evaluate(() => {
+      const btn = document.getElementById('sidebar-toggle');
+      if (btn) btn.click();
+    });
+    await this.page.waitForFunction(
+      () => document.getElementById('filter-sidebar')?.getAttribute('data-expanded') === 'true',
+      {},
+      { timeout: 5000 }
+    );
+    await this.page.waitForTimeout(500);
+  }
+  
+  const internalName = convertDataTypeName(dataType);
+  const checkboxId = `filter-bidevt-${internalName}`;
+  await this.page.waitForSelector(`#${checkboxId}`, { state: 'visible', timeout: 10000 });
+  const checkbox = await this.page.locator(`#${checkboxId}`);
   await expect(checkbox).not.toBeChecked();
 });
 

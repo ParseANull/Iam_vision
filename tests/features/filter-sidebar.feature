@@ -45,6 +45,7 @@ Feature: Filter Sidebar
     Then the "Applications" checkbox should be unchecked
     And applications data should not be displayed in visualizations
 
+  @sidebar
   Scenario: Toggle multiple data types
     When I click the sidebar toggle button
     And I uncheck the "Applications" data type
@@ -52,11 +53,13 @@ Feature: Filter Sidebar
     Then both "Applications" and "Federations" should be unchecked
     And only the remaining data types should be visible in visualizations
 
+  @sidebar
   Scenario: Check all data types
     When I click the sidebar toggle button
     And all data types are checked
     Then all available data should be displayed in visualizations
 
+  @sidebar
   Scenario: Data type selections persist in URL
     When I click the sidebar toggle button
     And I uncheck the "MFA" data type
