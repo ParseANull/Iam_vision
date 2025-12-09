@@ -375,7 +375,7 @@ body[data-theme="dark"] .axis line {
 /* ============================================================
    ENVIRONMENT SELECTOR (Header Multi-Select)
    ============================================================ */
-.environment-selector-wrapper {
+.bx--header .environment-selector-wrapper {
     display: flex !important;
     align-items: center;
     position: static !important;
@@ -385,28 +385,32 @@ body[data-theme="dark"] .axis line {
     margin-right: 1rem;
     flex-shrink: 0;
     order: -1;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-.bx--multi-select--inline {
-    background-color: transparent;
+.bx--header .bx--multi-select--inline {
+    background-color: transparent !important;
+    display: block !important;
 }
 
-#environment-selector-container {
-    position: relative;
+.bx--header #environment-selector-container {
+    position: relative !important;
     display: flex !important;
     visibility: visible !important;
     align-items: center;
     height: 100%;
 }
 
-.bx--multi-select__wrapper {
+.bx--header .bx--multi-select__wrapper {
     display: flex !important;
     align-items: center;
     height: 100%;
     width: 100%;
+    visibility: visible !important;
 }
 
-.bx--list-box__field {
+.bx--header .bx--list-box__field {
     background-color: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(255, 255, 255, 0.4) !important;
     border-radius: 4px;
@@ -422,26 +426,29 @@ body[data-theme="dark"] .axis line {
     transition: all 0.2s ease;
     font-weight: 500;
     white-space: nowrap;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-.bx--list-box__field:hover {
+.bx--header .bx--list-box__field:hover {
     background-color: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.5);
 }
 
-.bx--list-box__field:focus {
+.bx--header .bx--list-box__field:focus {
     outline: 2px solid #0f62fe;
     outline-offset: -2px;
 }
 
-.bx--list-box__label {
-    color: #f4f4f4;
+.bx--header .bx--list-box__label {
+    color: #f4f4f4 !important;
     font-size: 0.875rem;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
+    visibility: visible !important;
 }
 
 .bx--list-box__menu-icon svg {
