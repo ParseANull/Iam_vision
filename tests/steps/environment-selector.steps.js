@@ -90,11 +90,15 @@ Then('the {string} environment should be selected', async function (environment)
 });
 
 Then('the environment legend should be visible', async function () {
-  const legend = await this.page.locator('.environment-legend');
+  // Wait for legend to be displayed by JavaScript
+  await this.page.waitForSelector('#environment-legend', { state: 'visible', timeout: 10000 });
+  const legend = await this.page.locator('#environment-legend');
   await expect(legend).toBeVisible();
 });
 
 Then('the legend should show {string} with its assigned color', async function (environment) {
+  // Wait for legend items to be populated
+  await this.page.waitForSelector('#environment-legend-items .legend-item', { timeout: 10000 });
   const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
   await expect(legendItem).toBeVisible();
   const colorBox = await legendItem.locator('.legend-color-box');

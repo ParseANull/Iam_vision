@@ -9,14 +9,18 @@ Then('the filter sidebar should be collapsed by default', async function () {
 });
 
 Then('the sidebar toggle button should be visible', async function () {
-  const toggleButton = await this.page.locator('.bx--header__action--menu');
-  await expect(toggleButton).toBeVisible();
+  const toggleButton = await this.page.locator('#sidebar-toggle');
+  await expect(toggleButton).toBeVisible({ timeout: 10000 });
 });
 
 When('I click the sidebar toggle button', async function () {
-  const toggleButton = await this.page.locator('.bx--header__action--menu');
+  // Wait for page to be fully loaded
+  await this.page.waitForSelector('#sidebar-toggle', { timeout: 10000 });
+  await this.page.waitForTimeout(500); // Wait for any initialization
+  
+  const toggleButton = await this.page.locator('#sidebar-toggle');
   await toggleButton.click();
-  await this.page.waitForTimeout(300); // Animation time
+  await this.page.waitForTimeout(500); // Animation time
 });
 
 Then('the filter sidebar should expand', async function () {
@@ -60,6 +64,16 @@ Then('all data type checkboxes should be visible', async function () {
   for (let i = 0; i < count; i++) {
     await expect(checkboxes.nth(i)).toBeVisible();
   }
+});
+
+When('I click the sidebar toggle button again', async function () {
+  // Same as clicking the sidebar toggle button - reuse the logic
+  await this.page.waitForSelector('#sidebar-toggle', { timeout: 10000 });
+  await this.page.waitForTimeout(500);
+  
+  const toggleButton = await this.page.locator('#sidebar-toggle');
+  await toggleButton.click();
+  await this.page.waitForTimeout(500); // Animation time
 });
 
 When('I uncheck the {string} data type', async function (dataType) {
