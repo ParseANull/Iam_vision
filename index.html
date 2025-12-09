@@ -121,6 +121,39 @@
                 <h3 class="filter-sidebar-title">Filters</h3>
                 <button class="filter-sidebar-clear" id="clear-all-filters">Clear All</button>
             </div>
+            
+            <!-- Performance Warning -->
+            <div class="performance-warning" id="performance-warning" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor">
+                    <path d="M16 2C8.3 2 2 8.3 2 16s6.3 14 14 14 14-6.3 14-14S23.7 2 16 2zm-1.1 6h2.2v11h-2.2V8zM16 25c-.8 0-1.5-.7-1.5-1.5S15.2 22 16 22s1.5.7 1.5 1.5S16.8 25 16 25z"></path>
+                </svg>
+                <div class="performance-warning-content">
+                    <strong>Performance Impact Detected</strong>
+                    <p>Large dataset causing slow rendering. Consider limiting data below.</p>
+                </div>
+            </div>
+            
+            <!-- Data Limiting Control -->
+            <div class="data-limit-control" id="data-limit-control">
+                <div class="data-limit-header">
+                    <label for="data-limit-slider" class="data-limit-label">
+                        Data Limit Per Environment
+                    </label>
+                    <span class="data-limit-value" id="data-limit-value">100%</span>
+                </div>
+                <input type="range" 
+                       id="data-limit-slider" 
+                       class="data-limit-slider" 
+                       min="10" 
+                       max="100" 
+                       step="10" 
+                       value="100"
+                       aria-label="Limit data percentage per environment">
+                <div class="data-limit-description">
+                    Limit records loaded per environment to improve performance
+                </div>
+            </div>
+            
             <div class="filter-sidebar-content" id="filter-sidebar-content">
                 <!-- Accordion populated dynamically by populateFilterSidebar() -->
             </div>

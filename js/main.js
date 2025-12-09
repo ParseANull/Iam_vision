@@ -520,8 +520,19 @@ function aggregateData(filteredData) {
                 aggregated[aggregatedKey] = [];
             }
             
+            // Apply data limiting if enabled
+            let limitedItems = items;
+            if (AppState.performanceMetrics.dataLimitEnabled && AppState.performanceMetrics.dataLimitPercentage < 100) {
+                const limitCount = Math.ceil(items.length * (AppState.performanceMetrics.dataLimitPercentage / 100));
+                limitedItems = items.slice(0, limitCount);
+                
+                if (limitedItems.length < items.length) {
+                    console.log(`Limited ${dataType} in ${envId}: ${items.length} → ${limitedItems.length} (${AppState.performanceMetrics.dataLimitPercentage}%)`);
+                }
+            }
+            
             // Tag each item with environment metadata
-            const tagged = items.map(item => ({
+            const tagged = limitedItems.map(item => ({
                 ...item,
                 _environmentId: envId,
                 _environmentName: envInfo.name,
@@ -610,32 +621,8 @@ function trackPerformance(renderTime) {
     
     console.log(`Render time: ${renderTime.toFixed(2)}ms`);
     
-    // Check if performance is degraded (> 30 seconds)
-    if (renderTime > 30000 && !AppState.performanceMetrics.dataLimitEnabled) {
-        showPerformanceLimitDialog(renderTime);
-    }
-}
-
-/**
- * Show dialog to enable data limiting due to performance
- */
-function showPerformanceLimitDialog(renderTime) {
-    const seconds = (renderTime / 1000).toFixed(1);
-    
-    // TODO: Implement proper Carbon modal
-    const message = `Rendering took ${seconds} seconds. Would you like to limit the data displayed to improve performance?`;
-    
-    if (confirm(message)) {
-        showDataLimitSlider();
-    }
-}
-
-/**
- * Show data limit slider (will be implemented in Phase 7)
- */
-function showDataLimitSlider() {
-    console.log('Data limit slider - to be implemented in Phase 7');
-    // Placeholder for slider implementation
+    // Show performance warning in sidebar if needed
+    checkPerformanceAndWarn();
 }
 
 /**
@@ -978,6 +965,9 @@ function initializeEnvironmentSelector() {
     // Initialize sidebar toggle
     initializeSidebarToggle();
     
+    // Initialize data limiting control
+    initializeDataLimitingControl();
+    
     console.log('✓ Environment selector initialized');
 }
 
@@ -1189,6 +1179,66 @@ function scheduleAutoCollapseSidebar() {
             toggleSidebar(false);
         }
     }, 5000);
+}
+
+/**
+ * Initialize data limiting control
+ */
+function initializeDataLimitingControl() {
+    const slider = document.getElementById('data-limit-slider');
+    const valueDisplay = document.getElementById('data-limit-value');
+    
+    if (!slider || !valueDisplay) return;
+    
+    // Update display when slider changes
+    slider.addEventListener('input', (e) => {
+        const value = parseInt(e.target.value);
+        valueDisplay.textContent = `${value}%`;
+        
+        // Update gradient fill
+        const percentage = value;
+        slider.style.background = `linear-gradient(to right, ${
+            document.body.getAttribute('data-theme') === 'dark' ? '#78a9ff' : '#0f62fe'
+        } 0%, ${
+            document.body.getAttribute('data-theme') === 'dark' ? '#78a9ff' : '#0f62fe'
+        } ${percentage}%, ${
+            document.body.getAttribute('data-theme') === 'dark' ? '#525252' : '#e0e0e0'
+        } ${percentage}%)`;
+    });
+    
+    // Apply limit when user finishes adjusting
+    slider.addEventListener('change', (e) => {
+        const value = parseInt(e.target.value);
+        AppState.performanceMetrics.dataLimitPercentage = value;
+        AppState.performanceMetrics.dataLimitEnabled = value < 100;
+        
+        console.log(`Data limit set to ${value}%`);
+        
+        // Reload data with new limit if environments are selected
+        if (AppState.selectedEnvironments.length > 0) {
+            updateCurrentView();
+        }
+    });
+    
+    console.log('✓ Data limiting control initialized');
+}
+
+/**
+ * Show performance warning if render time exceeds threshold
+ */
+function checkPerformanceAndWarn() {
+    const warning = document.getElementById('performance-warning');
+    if (!warning) return;
+    
+    const THRESHOLD_MS = 30000; // 30 seconds
+    const shouldShow = AppState.performanceMetrics.lastRenderTime > THRESHOLD_MS;
+    
+    if (shouldShow && !AppState.performanceMetrics.dataLimitEnabled) {
+        warning.style.display = 'flex';
+        console.warn(`⚠ Performance warning: Last render took ${(AppState.performanceMetrics.lastRenderTime / 1000).toFixed(2)}s`);
+    } else {
+        warning.style.display = 'none';
+    }
 }
 
 /**
