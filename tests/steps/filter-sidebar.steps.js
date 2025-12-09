@@ -15,11 +15,12 @@ Then('the sidebar toggle button should be visible', async function () {
 });
 
 When('I click the sidebar toggle button', async function () {
-  // Wait for page to be fully loaded
-  await this.page.waitForSelector('#sidebar-toggle', { timeout: 10000 });
-  await this.page.waitForTimeout(500); // Wait for any initialization
+  // Wait for page to be fully loaded and button to be visible and clickable
+  await this.page.waitForLoadState('networkidle');
+  await this.page.waitForSelector('#sidebar-toggle', { state: 'visible', timeout: 15000 });
   
   const toggleButton = await this.page.locator('#sidebar-toggle');
+  await toggleButton.waitFor({ state: 'visible', timeout: 15000 });
   await toggleButton.click();
   await this.page.waitForTimeout(500); // Animation time
 });
@@ -31,8 +32,10 @@ Then('the filter sidebar should expand', async function () {
 });
 
 Then('the data type filters should be visible', async function () {
-  const dataTypes = await this.page.locator('.filter-section');
-  await expect(dataTypes).toBeVisible();
+  // Wait for sidebar content to be populated after environment selection
+  await this.page.waitForSelector('.filter-accordion', { state: 'visible', timeout: 15000 });
+  const dataTypes = await this.page.locator('.data-type-list');
+  await expect(dataTypes.first()).toBeVisible();
 });
 
 Then('the filter sidebar should collapse', async function () {
@@ -42,9 +45,10 @@ Then('the filter sidebar should collapse', async function () {
 });
 
 Then('the data type filters should not be visible', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
-  const isCollapsed = await sidebar.getAttribute('data-sidebar-collapsed');
-  expect(isCollapsed).toBe('true');
+  // When sidebar is collapsed, the filter content should be hidden
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  expect(isExpanded).toBe('false');
 });
 
 Then('I should see the {string} accordion section', async function (sectionName) {
