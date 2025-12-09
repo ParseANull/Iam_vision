@@ -36,6 +36,14 @@ body {
     align-items: center;
     gap: 0.5rem;
     flex-wrap: nowrap;
+    height: 48px;
+    margin-left: auto;
+    position: relative;
+}
+
+/* Ensure environment selector renders in header, not elsewhere */
+.bx--header .environment-selector-wrapper {
+    position: static !important;
 }
 
 .bx--header__menu-item {
@@ -373,12 +381,15 @@ body[data-theme="dark"] .axis line {
    ENVIRONMENT SELECTOR (Header Multi-Select)
    ============================================================ */
 .environment-selector-wrapper {
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center;
     position: relative;
     min-width: 240px;
+    max-width: 320px;
+    height: 48px;
     margin-right: 1rem;
     flex-shrink: 0;
+    z-index: 1;
 }
 
 .bx--multi-select--inline {
@@ -387,12 +398,17 @@ body[data-theme="dark"] .axis line {
 
 #environment-selector-container {
     position: relative;
-    display: block !important;
+    display: flex !important;
     visibility: visible !important;
+    align-items: center;
+    height: 100%;
 }
 
 .bx--multi-select__wrapper {
-    display: block !important;
+    display: flex !important;
+    align-items: center;
+    height: 100%;
+    width: 100%;
 }
 
 .bx--list-box__field {
@@ -402,6 +418,7 @@ body[data-theme="dark"] .axis line {
     color: #f4f4f4 !important;
     padding: 0.5rem 1rem;
     min-width: 240px;
+    max-width: 320px;
     height: 40px;
     cursor: pointer;
     display: flex !important;
@@ -409,6 +426,7 @@ body[data-theme="dark"] .axis line {
     justify-content: space-between;
     transition: all 0.2s ease;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .bx--list-box__field:hover {
