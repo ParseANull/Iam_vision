@@ -945,7 +945,6 @@ function populateEnvironmentMenu() {
         
         menu.appendChild(item);
     }
-}
 
 /**
  * Handle environment selection toggle
@@ -1110,7 +1109,7 @@ function populateFilterSidebar() {
     accordion.setAttribute('role', 'list');
     
     AppState.selectedEnvironments.forEach((envId, index) => {
-        const envConfig = AppState.availableEnvironments.find(e => e.id === envId);
+        const envConfig = AppState.availableEnvironments[envId];
         if (!envConfig) return;
         
         const item = createFilterAccordionItem(envId, envConfig, index === 0);
