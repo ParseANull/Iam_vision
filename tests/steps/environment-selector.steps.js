@@ -7,16 +7,20 @@ Given('I am on the IAM dashboard', async function () {
   await this.page.waitForLoadState('networkidle');
   
   // Wait for the environment selector to be initialized
-  await this.page.waitForSelector('#environment-selector-toggle', { state: 'visible', timeout: 10000 });
+  await this.page.waitForSelector('#environment-selector-toggle', { state: 'visible', timeout: 15000 });
   
-  // Wait for JavaScript initialization (look for console log or specific element)
+  // Wait for JavaScript initialization - menu should have at least 5 items
   await this.page.waitForFunction(() => {
-    return document.getElementById('environment-selector-menu').children.length > 0;
-  }, { timeout: 10000 }).catch(() => {
-    console.log('Warning: Environment menu not populated within timeout');
-  });
+    const menu = document.getElementById('environment-selector-menu');
+    if (!menu) return false;
+    const items = menu.querySelectorAll('.bx--list-box__menu-item');
+    return items.length >= 5;
+  }, { timeout: 15000 });
   
-  await this.page.waitForTimeout(500); // Small buffer for any animations
+  // Wait for sidebar to be ready
+  await this.page.waitForSelector('#sidebar-toggle', { state: 'visible', timeout: 15000 });
+  
+  await this.page.waitForTimeout(1000); // Buffer for initialization
 });
 
 Given('I have selected the {string} environment', async function (environment) {
@@ -45,10 +49,16 @@ When('I click the environment selector', async function () {
 });
 
 When('I select the {string} environment', async function (environment) {
-  // Find the checkbox for this environment
+  // Wait for menu to be visible
+  await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 10000 });
+  
+  // Find the checkbox for this environment and wait for it
   const checkbox = await this.page.locator(`input[type="checkbox"][value="${environment}"]`);
+  await checkbox.waitFor({ state: 'visible', timeout: 10000 });
   await checkbox.click();
-  await this.page.waitForTimeout(1000); // Wait for data loading and UI updates
+  
+  // Wait for data loading and UI updates
+  await this.page.waitForTimeout(2000);
 });
 
 When('I deselect the {string} environment', async function (environment) {
