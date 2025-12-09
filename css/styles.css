@@ -410,11 +410,12 @@ body[data-theme="dark"] .axis line {
     visibility: visible !important;
 }
 
+/* Light theme styles */
 .bx--header .bx--list-box__field {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid rgba(0, 0, 0, 0.2) !important;
     border-radius: 4px;
-    color: #f4f4f4 !important;
+    color: #161616 !important;
     padding: 0.5rem 1rem;
     min-width: 240px;
     max-width: 320px;
@@ -431,8 +432,8 @@ body[data-theme="dark"] .axis line {
 }
 
 .bx--header .bx--list-box__field:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.3);
 }
 
 .bx--header .bx--list-box__field:focus {
@@ -441,7 +442,7 @@ body[data-theme="dark"] .axis line {
 }
 
 .bx--header .bx--list-box__label {
-    color: #f4f4f4 !important;
+    color: #161616 !important;
     font-size: 0.875rem;
     font-weight: 500;
     white-space: nowrap;
@@ -451,7 +452,31 @@ body[data-theme="dark"] .axis line {
     visibility: visible !important;
 }
 
-.bx--list-box__menu-icon svg {
+/* Dark theme styles */
+[data-carbon-theme="g100"] .bx--header .bx--list-box__field,
+[data-carbon-theme="g90"] .bx--header .bx--list-box__field {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    color: #f4f4f4 !important;
+}
+
+[data-carbon-theme="g100"] .bx--header .bx--list-box__field:hover,
+[data-carbon-theme="g90"] .bx--header .bx--list-box__field:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+[data-carbon-theme="g100"] .bx--header .bx--list-box__label,
+[data-carbon-theme="g90"] .bx--header .bx--list-box__label {
+    color: #f4f4f4 !important;
+}
+
+.bx--header .bx--list-box__menu-icon svg {
+    fill: #161616;
+}
+
+[data-carbon-theme="g100"] .bx--header .bx--list-box__menu-icon svg,
+[data-carbon-theme="g90"] .bx--header .bx--list-box__menu-icon svg {
     fill: #f4f4f4;
 }
 
