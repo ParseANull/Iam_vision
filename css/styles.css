@@ -38,11 +38,6 @@ body {
     flex-wrap: nowrap;
     height: 48px;
     margin-left: auto;
-    position: relative;
-}
-
-/* Ensure environment selector renders in header, not elsewhere */
-.bx--header .environment-selector-wrapper {
     position: static !important;
 }
 
@@ -383,13 +378,13 @@ body[data-theme="dark"] .axis line {
 .environment-selector-wrapper {
     display: flex !important;
     align-items: center;
-    position: relative;
+    position: static !important;
     min-width: 240px;
     max-width: 320px;
     height: 48px;
     margin-right: 1rem;
     flex-shrink: 0;
-    z-index: 1;
+    order: -1;
 }
 
 .bx--multi-select--inline {
