@@ -378,7 +378,7 @@ async function loadEnvironmentData(envId) {
                 const data = await DataLoader.loadJSONL(`${envId}/${filename}`);
                 results[dataType] = data;
             } catch (error) {
-                console.warn(`Could not load ${envId}/${dataType}.jsonl:`, error.message);
+                console.log(`ℹ Skipping ${envId}/${dataType}.jsonl (not available or empty)`);
                 results[dataType] = [];
             }
         }));

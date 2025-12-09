@@ -18,7 +18,7 @@ const DataLoader = {
             
             const text = await response.text();
             if (!text.trim()) {
-                console.warn(`File ${filename} is empty`);
+                console.log(`ℹ File ${filename} is empty (no data available)`);
                 return [];
             }
             
@@ -26,21 +26,26 @@ const DataLoader = {
             const lines = text.trim().split('\n');
             const data = lines
                 .filter(line => line.trim())
-                .map(line => {
+                .map((line, index) => {
                     try {
                         return JSON.parse(line);
                     } catch (e) {
-                        console.error(`Error parsing line in ${filename}:`, e);
+                        console.warn(`⚠ Skipping invalid JSON at line ${index + 1} in ${filename}`);
                         return null;
                     }
                 })
                 .filter(obj => obj !== null);
             
-            console.log(`Loaded ${data.length} items from ${filename}`);
+            console.log(`✓ Loaded ${data.length} items from ${filename}`);
             return data;
             
         } catch (error) {
-            console.error(`Error loading ${filename}:`, error);
+            // Check if it's a network error (file not found)
+            if (error.message.includes('Failed to load')) {
+                console.log(`ℹ File ${filename} not found (optional data file)`);
+                return [];
+            }
+            console.error(`✗ Error loading ${filename}:`, error);
             throw error;
         }
     },
@@ -63,7 +68,7 @@ const DataLoader = {
             try {
                 results[key] = await this.loadJSONL(filename);
             } catch (error) {
-                console.warn(`Could not load ${filename}, using empty array`);
+                console.log(`ℹ Could not load ${filename}, using empty data`);
                 results[key] = [];
             }
         };
