@@ -881,11 +881,12 @@ body[data-theme="dark"] .axis line {
 /* ============================================================
    ENVIRONMENT LEGEND
    ============================================================ */
+/* Light theme */
 .environment-legend {
     position: sticky;
     top: calc(var(--header-height) + 1rem);
     z-index: 100;
-    background-color: #f4f4f4;
+    background-color: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     padding: 0.75rem 1rem;
@@ -927,6 +928,29 @@ body[data-theme="dark"] .axis line {
 
 .environment-legend-name {
     white-space: nowrap;
+}
+
+/* Dark theme */
+[data-carbon-theme="g100"] .environment-legend,
+[data-carbon-theme="g90"] .environment-legend {
+    background-color: #262626;
+    border-color: #525252;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-carbon-theme="g100"] .environment-legend-header,
+[data-carbon-theme="g90"] .environment-legend-header {
+    color: #f4f4f4;
+}
+
+[data-carbon-theme="g100"] .environment-legend-item,
+[data-carbon-theme="g90"] .environment-legend-item {
+    color: #f4f4f4;
+}
+
+[data-carbon-theme="g100"] .environment-legend-color,
+[data-carbon-theme="g90"] .environment-legend-color {
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 672px) {
