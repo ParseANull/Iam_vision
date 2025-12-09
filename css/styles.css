@@ -1,7 +1,7 @@
 /* Custom Styles for IBM Security Verify Dashboard */
 
 :root {
-    --header-height: 48px;
+    --header-height: 88px;
 }
 
 /* Layout */
@@ -19,7 +19,6 @@ body {
     left: 0;
     right: 0;
     z-index: 8000;
-    height: var(--header-height);
     background-color: #161616;
 }
 
