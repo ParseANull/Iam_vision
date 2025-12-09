@@ -408,6 +408,9 @@ async function updateDashboardMultiEnv() {
     
     // Update current view
     updateView(AppState.currentView);
+    
+    // Schedule auto-collapse of sidebar after 5 seconds
+    scheduleAutoCollapseSidebar();
 }
 
 /**
@@ -852,12 +855,441 @@ window.addEventListener('resize', () => {
 });
 
 /**
- * Initialize environment selector UI (placeholder - will be implemented in Phase 2)
+ * Initialize environment selector UI
  */
 function initializeEnvironmentSelector() {
-    console.log('Environment selector initialization - to be implemented in Phase 2');
-    // This will create the multi-select dropdown in the header
-    // For now, we'll rely on the restoration logic
+    console.log('Initializing environment selector...');
+    
+    const toggle = document.getElementById('environment-selector-toggle');
+    const menu = document.getElementById('environment-selector-menu');
+    const label = document.getElementById('environment-selector-label');
+    
+    if (!toggle || !menu || !AppState.availableEnvironments) {
+        console.error('Environment selector elements not found');
+        return;
+    }
+    
+    // Populate menu with environments
+    populateEnvironmentMenu();
+    
+    // Toggle dropdown
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', !isExpanded);
+        menu.style.display = isExpanded ? 'none' : 'block';
+    });
+    
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+            toggle.setAttribute('aria-expanded', 'false');
+            menu.style.display = 'none';
+        }
+    });
+    
+    // Initialize profile menu
+    initializeProfileMenu();
+    
+    // Initialize sidebar toggle
+    initializeSidebarToggle();
+    
+    console.log('✓ Environment selector initialized');
+}
+
+/**
+ * Populate environment selector menu
+ */
+function populateEnvironmentMenu() {
+    const menu = document.getElementById('environment-selector-menu');
+    menu.innerHTML = '';
+    
+    for (const [envId, envInfo] of Object.entries(AppState.availableEnvironments)) {
+        const item = document.createElement('div');
+        item.className = 'bx--list-box__menu-item';
+        item.setAttribute('role', 'option');
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `env-${envId}`;
+        checkbox.value = envId;
+        checkbox.checked = AppState.selectedEnvironments.includes(envId);
+        
+        const textWrapper = document.createElement('div');
+        textWrapper.className = 'bx--list-box__menu-item-text';
+        
+        const title = document.createElement('span');
+        title.className = 'bx--list-box__menu-item-title';
+        title.textContent = `${envInfo.name} (${envId})`;
+        
+        const description = document.createElement('span');
+        description.className = 'bx--list-box__menu-item-description';
+        description.textContent = envInfo.description;
+        
+        textWrapper.appendChild(title);
+        textWrapper.appendChild(description);
+        
+        item.appendChild(checkbox);
+        item.appendChild(textWrapper);
+        
+        // Handle selection
+        item.addEventListener('click', async (e) => {
+            if (e.target === checkbox) return; // Let checkbox handle itself
+            checkbox.checked = !checkbox.checked;
+            await handleEnvironmentToggle(envId, checkbox.checked);
+        });
+        
+        checkbox.addEventListener('change', async (e) => {
+            await handleEnvironmentToggle(envId, e.target.checked);
+        });
+        
+        menu.appendChild(item);
+    }
+}
+
+/**
+ * Handle environment selection toggle
+ */
+async function handleEnvironmentToggle(envId, isSelected) {
+    try {
+        await selectEnvironment(envId, isSelected);
+        updateEnvironmentSelectorLabel();
+        populateFilterSidebar();
+        
+        // Auto-open sidebar if environments are selected and it was collapsed
+        if (isSelected && AppState.selectedEnvironments.length === 1) {
+            const content = document.getElementById('main-content');
+            if (content.getAttribute('data-sidebar-collapsed') === 'true') {
+                toggleSidebar(true);
+            }
+        }
+    } catch (error) {
+        console.error('Error toggling environment:', error);
+        // Revert checkbox state
+        const checkbox = document.getElementById(`env-${envId}`);
+        if (checkbox) {
+            checkbox.checked = !isSelected;
+        }
+    }
+}
+
+/**
+ * Update environment selector label
+ */
+function updateEnvironmentSelectorLabel() {
+    const label = document.getElementById('environment-selector-label');
+    const count = AppState.selectedEnvironments.length;
+    
+    if (count === 0) {
+        label.textContent = 'Select Environments';
+    } else if (count === 1) {
+        const envId = AppState.selectedEnvironments[0];
+        const envInfo = AppState.availableEnvironments[envId];
+        label.textContent = envInfo ? envInfo.name : envId;
+    } else {
+        label.textContent = `${count} Environments Selected`;
+    }
+}
+
+/**
+ * Initialize profile menu
+ */
+function initializeProfileMenu() {
+    const toggle = document.getElementById('profile-menu-toggle');
+    const menu = document.getElementById('profile-menu');
+    const rememberToggle = document.getElementById('remember-selection-toggle');
+    const autoCollapseToggle = document.getElementById('auto-collapse-sidebar-toggle');
+    
+    if (!toggle || !menu) return;
+    
+    // Set initial states from preferences
+    if (rememberToggle) {
+        rememberToggle.checked = AppState.preferences.rememberSelection;
+        rememberToggle.addEventListener('change', (e) => {
+            AppState.preferences.rememberSelection = e.target.checked;
+            saveUserPreferences();
+        });
+    }
+    
+    if (autoCollapseToggle) {
+        autoCollapseToggle.checked = AppState.preferences.autoCollapseSidebar !== false;
+        autoCollapseToggle.addEventListener('change', (e) => {
+            AppState.preferences.autoCollapseSidebar = e.target.checked;
+            saveUserPreferences();
+        });
+    }
+    
+    // Toggle menu
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = menu.style.display === 'block';
+        menu.style.display = isVisible ? 'none' : 'block';
+    });
+    
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+    
+    // Preferences button (placeholder)
+    const preferencesBtn = document.getElementById('preferences-button');
+    if (preferencesBtn) {
+        preferencesBtn.addEventListener('click', () => {
+            console.log('Preferences dialog - to be implemented');
+            // TODO: Open preferences modal
+        });
+    }
+}
+
+/**
+ * Initialize sidebar toggle functionality
+ */
+function initializeSidebarToggle() {
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const content = document.getElementById('main-content');
+    
+    if (!toggleBtn || !content) return;
+    
+    toggleBtn.addEventListener('click', () => {
+        const isCollapsed = content.getAttribute('data-sidebar-collapsed') === 'true';
+        toggleSidebar(!isCollapsed);
+    });
+}
+
+/**
+ * Toggle sidebar visibility
+ */
+function toggleSidebar(shouldExpand) {
+    const content = document.getElementById('main-content');
+    const sidebar = document.getElementById('filter-sidebar');
+    
+    if (shouldExpand) {
+        content.setAttribute('data-sidebar-collapsed', 'false');
+        sidebar.setAttribute('data-expanded', 'true');
+    } else {
+        content.setAttribute('data-sidebar-collapsed', 'true');
+        sidebar.setAttribute('data-expanded', 'false');
+    }
+}
+
+/**
+ * Auto-collapse sidebar after delay (called after data load)
+ */
+function scheduleAutoCollapseSidebar() {
+    if (!AppState.preferences.autoCollapseSidebar) return;
+    
+    setTimeout(() => {
+        const content = document.getElementById('main-content');
+        if (content && content.getAttribute('data-sidebar-collapsed') !== 'true') {
+            console.log('Auto-collapsing sidebar after 5 seconds');
+            toggleSidebar(false);
+        }
+    }, 5000);
+}
+
+/**
+ * Populate filter sidebar with accordion for selected environments
+ */
+function populateFilterSidebar() {
+    const container = document.getElementById('filter-sidebar-content');
+    if (!container) return;
+    
+    // Clear existing content
+    container.innerHTML = '';
+    
+    if (AppState.selectedEnvironments.length === 0) {
+        container.innerHTML = '<div style="padding: 2rem 1rem; text-align: center; color: #525252; font-size: 0.875rem;">Select an environment to configure filters</div>';
+        return;
+    }
+    
+    // Create accordion list
+    const accordion = document.createElement('ul');
+    accordion.className = 'filter-accordion';
+    accordion.setAttribute('role', 'list');
+    
+    AppState.selectedEnvironments.forEach((envId, index) => {
+        const envConfig = AppState.availableEnvironments.find(e => e.id === envId);
+        if (!envConfig) return;
+        
+        const item = createFilterAccordionItem(envId, envConfig, index === 0);
+        accordion.appendChild(item);
+    });
+    
+    container.appendChild(accordion);
+    
+    // Wire up Clear All button
+    const clearAllBtn = document.getElementById('clear-all-filters');
+    if (clearAllBtn) {
+        clearAllBtn.onclick = handleClearAllFilters;
+    }
+}
+
+/**
+ * Create a single accordion item for an environment
+ */
+function createFilterAccordionItem(envId, envConfig, isExpanded = false) {
+    const li = document.createElement('li');
+    li.className = 'filter-accordion-item';
+    
+    // Header button
+    const header = document.createElement('button');
+    header.className = 'filter-accordion-header';
+    header.setAttribute('aria-expanded', isExpanded);
+    header.setAttribute('aria-controls', `filter-content-${envId}`);
+    
+    const title = document.createElement('div');
+    title.className = 'filter-accordion-title';
+    title.innerHTML = `
+        <span>${envConfig.name}</span>
+        <span style="font-size: 0.75rem; font-weight: 400; color: #525252;">(${envId})</span>
+    `;
+    
+    const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    chevron.setAttribute('class', 'filter-accordion-chevron');
+    chevron.setAttribute('viewBox', '0 0 16 16');
+    chevron.innerHTML = '<path d="M6 4l6 4-6 4V4z"/>';
+    
+    header.appendChild(title);
+    header.appendChild(chevron);
+    
+    // Content area
+    const content = document.createElement('div');
+    content.className = 'filter-accordion-content';
+    content.id = `filter-content-${envId}`;
+    content.setAttribute('aria-hidden', !isExpanded);
+    
+    const body = document.createElement('div');
+    body.className = 'filter-accordion-body';
+    
+    // Data type checkboxes
+    const dataTypes = AppState.dataTypeSelections[envId];
+    if (dataTypes) {
+        const list = document.createElement('ul');
+        list.className = 'data-type-list';
+        
+        Object.entries(dataTypes).forEach(([dataType, isEnabled]) => {
+            const item = createDataTypeCheckbox(envId, dataType, isEnabled);
+            list.appendChild(item);
+        });
+        
+        body.appendChild(list);
+    }
+    
+    content.appendChild(body);
+    
+    // Click handler for accordion toggle
+    header.addEventListener('click', () => {
+        const isCurrentlyExpanded = header.getAttribute('aria-expanded') === 'true';
+        header.setAttribute('aria-expanded', !isCurrentlyExpanded);
+        content.setAttribute('aria-hidden', isCurrentlyExpanded);
+    });
+    
+    li.appendChild(header);
+    li.appendChild(content);
+    
+    return li;
+}
+
+/**
+ * Create a checkbox for a data type
+ */
+function createDataTypeCheckbox(envId, dataType, isEnabled) {
+    const li = document.createElement('li');
+    li.className = 'data-type-item';
+    
+    const label = document.createElement('label');
+    label.className = 'data-type-checkbox';
+    
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = isEnabled;
+    checkbox.id = `filter-${envId}-${dataType}`;
+    
+    const labelText = document.createElement('span');
+    labelText.className = 'data-type-label';
+    labelText.textContent = formatDataTypeName(dataType);
+    
+    // Get count from cache if available
+    const count = getDataTypeCount(envId, dataType);
+    const countSpan = document.createElement('span');
+    countSpan.className = 'data-type-count';
+    countSpan.textContent = count !== null ? `(${count})` : '';
+    
+    label.appendChild(checkbox);
+    label.appendChild(labelText);
+    label.appendChild(countSpan);
+    
+    // Change handler
+    checkbox.addEventListener('change', async (e) => {
+        await handleDataTypeToggle(envId, dataType, e.target.checked);
+    });
+    
+    li.appendChild(label);
+    return li;
+}
+
+/**
+ * Format data type name for display
+ */
+function formatDataTypeName(dataType) {
+    const nameMap = {
+        'applications': 'Applications',
+        'federations': 'Federations',
+        'mfa_config': 'MFA Config',
+        'attributes': 'Attributes',
+        'entity_types': 'Entity Types',
+        'scim_capabilities': 'SCIM Capabilities',
+        'dynamic_groups': 'Dynamic Groups',
+        'dynamic_groups_detail': 'Dynamic Groups Detail'
+    };
+    return nameMap[dataType] || dataType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/**
+ * Get count of items for a data type from cache
+ */
+function getDataTypeCount(envId, dataType) {
+    const cache = AppState.dataCache[envId];
+    if (!cache || cache._status !== 'loaded') return null;
+    
+    const data = cache[dataType];
+    return Array.isArray(data) ? data.length : null;
+}
+
+/**
+ * Handle data type checkbox toggle
+ */
+async function handleDataTypeToggle(envId, dataType, isEnabled) {
+    try {
+        toggleDataType(envId, dataType, isEnabled);
+        console.log(`${isEnabled ? 'Enabled' : 'Disabled'} ${dataType} for ${envId}`);
+    } catch (error) {
+        console.error('Failed to toggle data type:', error);
+        // Revert checkbox on error
+        const checkbox = document.getElementById(`filter-${envId}-${dataType}`);
+        if (checkbox) checkbox.checked = !isEnabled;
+    }
+}
+
+/**
+ * Handle Clear All filters
+ */
+function handleClearAllFilters() {
+    if (AppState.selectedEnvironments.length === 0) return;
+    
+    if (confirm('Clear all filters and deselect all environments?')) {
+        // Deselect all environments
+        AppState.selectedEnvironments.forEach(envId => {
+            selectEnvironment(envId, false);
+        });
+        
+        // Update UI
+        updateEnvironmentSelectorLabel();
+        populateFilterSidebar();
+        showEnvironmentSelectionPrompt();
+    }
 }
 
 // Initialize app when DOM is ready

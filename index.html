@@ -43,6 +43,33 @@
         </nav>
         
         <div class="bx--header__global">
+            <!-- Environment Selector -->
+            <div class="environment-selector-wrapper">
+                <div class="bx--multi-select bx--multi-select--inline" data-invalid="" id="environment-selector-container">
+                    <label for="environment-selector" class="bx--label bx--visually-hidden">Select Environments</label>
+                    <div class="bx--multi-select__wrapper">
+                        <button type="button" 
+                                class="bx--list-box__field" 
+                                aria-label="Select environments"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                id="environment-selector-toggle">
+                            <span class="bx--list-box__label" id="environment-selector-label">Select Environments</span>
+                            <div class="bx--list-box__menu-icon">
+                                <svg focusable="false" preserveAspectRatio="xMidYMid meet" 
+                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" 
+                                     width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+                                    <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
+                                </svg>
+                            </div>
+                        </button>
+                        <div class="bx--list-box__menu" role="listbox" id="environment-selector-menu" style="display: none;">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <button class="bx--header__action" aria-label="Theme Switcher" id="theme-switcher">
                 <svg class="bx--header__action-icon" width="20" height="20" viewBox="0 0 20 20">
                     <path d="M10 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 14V4a6 6 0 0 1 0 12z"></path>
@@ -53,11 +80,66 @@
                     <path d="M26 24v4H6v-4H4v4a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2v-4zM6 12l1.41 1.41L15 5.83V22h2V5.83l7.59 7.58L26 12 16 2 6 12z"></path>
                 </svg>
             </button>
+            
+            <!-- Profile Menu -->
+            <div class="bx--header__action profile-menu-container">
+                <button class="bx--header__action" aria-label="Profile and Preferences" id="profile-menu-toggle">
+                    <svg class="bx--header__action-icon" width="20" height="20" viewBox="0 0 32 32">
+                        <path d="M16 4a5 5 0 11-5 5 5 5 0 015-5m0-2a7 7 0 107 7 7 7 0 00-7-7zM26 30h-2v-5a5 5 0 00-5-5h-6a5 5 0 00-5 5v5H6v-5a7 7 0 017-7h6a7 7 0 017 7z"></path>
+                    </svg>
+                </button>
+                <div class="profile-menu" id="profile-menu" style="display: none;">
+                    <ul class="profile-menu-list">
+                        <li class="profile-menu-item">
+                            <button class="profile-menu-button" id="preferences-button">
+                                <svg width="16" height="16" viewBox="0 0 32 32">
+                                    <path d="M27 16.76v-1.53l1.92-1.68A2 2 0 0029.3 11l-2.36-4a2 2 0 00-1.73-1 2 2 0 00-.64.1l-2.43.82a11.35 11.35 0 00-1.31-.75l-.51-2.52a2 2 0 00-2-1.61h-4.68a2 2 0 00-2 1.61l-.51 2.52a11.48 11.48 0 00-1.32.75l-2.38-.82A2 2 0 006.79 6a2 2 0 00-1.73 1L2.7 11a2 2 0 00.41 2.51L5 15.24v1.53l-1.89 1.68A2 2 0 002.7 21l2.36 4a2 2 0 001.73 1 2 2 0 00.64-.1l2.43-.82a11.35 11.35 0 001.31.75l.51 2.52a2 2 0 002 1.61h4.72a2 2 0 002-1.61l.51-2.52a11.48 11.48 0 001.32-.75l2.42.82a2 2 0 00.64.1 2 2 0 001.73-1l2.28-4a2 2 0 00-.41-2.51zM25.21 24l-3.43-1.16a8.86 8.86 0 01-2.71 1.57L18.36 28h-4.72l-.71-3.55a9.36 9.36 0 01-2.7-1.57L6.79 24 4.5 20l2.72-2.4a8.9 8.9 0 010-3.13L4.5 12 6.79 8l3.43 1.16a8.86 8.86 0 012.71-1.57L13.64 4h4.72l.71 3.55a9.36 9.36 0 012.7 1.57L25.21 8 27.5 12l-2.72 2.4a8.9 8.9 0 010 3.13L27.5 20z"></path>
+                                    <path d="M16 22a6 6 0 116-6 5.94 5.94 0 01-6 6zm0-10a3.91 3.91 0 00-4 4 3.91 3.91 0 004 4 3.91 3.91 0 004-4 3.91 3.91 0 00-4-4z"></path>
+                                </svg>
+                                <span>Preferences</span>
+                            </button>
+                        </li>
+                        <li class="profile-menu-divider"></li>
+                        <li class="profile-menu-item">
+                            <label class="profile-menu-checkbox">
+                                <input type="checkbox" id="remember-selection-toggle" />
+                                <span>Remember my selections</span>
+                            </label>
+                        </li>
+                        <li class="profile-menu-item">
+                            <label class="profile-menu-checkbox">
+                                <input type="checkbox" id="auto-collapse-sidebar-toggle" checked />
+                                <span>Auto-collapse sidebar</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </header>
     
     <!-- Main Content -->
-    <div class="bx--content">
+    <div class="bx--content" id="main-content">
+        <!-- Sidebar Toggle Button -->
+        <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Toggle filters sidebar">
+            <svg width="20" height="20" viewBox="0 0 32 32" class="sidebar-toggle-icon">
+                <path d="M22 16L12 26l-1.4-1.4 8.6-8.6-8.6-8.6L12 6z"></path>
+            </svg>
+        </button>
+        
+        <!-- Filter Sidebar -->
+        <aside class="filter-sidebar" id="filter-sidebar" data-expanded="true">
+            <div class="filter-sidebar-header">
+                <h3 class="filter-sidebar-title">Filters</h3>
+                <button class="filter-sidebar-clear" id="clear-all-filters">Clear All</button>
+            </div>
+            <div class="filter-sidebar-content" id="filter-sidebar-content">
+                <!-- Accordion populated dynamically by populateFilterSidebar() -->
+            </div>
+        </aside>
+        
+        <!-- Main Visualization Area -->
+        <div class="main-visualization-area">
         <!-- Loading State -->
         <div id="loading-state" class="loading-state">
             <div class="bx--loading bx--loading--small">
@@ -255,6 +337,7 @@
                 </div>
             </div>
         </div>
+        </div> <!-- Close main-visualization-area -->
     </div>
     
     <!-- JavaScript -->
