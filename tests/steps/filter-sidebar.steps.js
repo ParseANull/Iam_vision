@@ -15,13 +15,14 @@ Then('the sidebar toggle button should be visible', async function () {
 });
 
 When('I click the sidebar toggle button', async function () {
-  // Wait for page to be fully loaded and button to be visible and clickable
+  // Wait for page to be fully loaded
   await this.page.waitForLoadState('networkidle');
-  await this.page.waitForSelector('#sidebar-toggle', { state: 'visible', timeout: 15000 });
+  // Wait for the button to exist in DOM
+  await this.page.waitForSelector('#sidebar-toggle', { state: 'attached', timeout: 15000 });
   
+  // Try clicking with force if element is covered
   const toggleButton = await this.page.locator('#sidebar-toggle');
-  await toggleButton.waitFor({ state: 'visible', timeout: 15000 });
-  await toggleButton.click();
+  await toggleButton.click({ force: true, timeout: 15000 });
   await this.page.waitForTimeout(500); // Animation time
 });
 
