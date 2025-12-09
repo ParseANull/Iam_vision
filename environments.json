@@ -1,0 +1,46 @@
+{
+  "environments": {
+    "bidevt": {
+      "name": "Business Intelligence Development",
+      "description": "BI Dev environment for testing and development",
+      "env_file": ".env.bidevt",
+      "url_domain": "miloginbidev.michigan.gov"
+    },
+    "widevt": {
+      "name": "Web Infrastructure Development",
+      "description": "WI Dev environment for testing and development",
+      "env_file": ".env.widevt",
+      "url_domain": "miloginwidev.michigan.gov"
+    },
+    "biqat": {
+      "name": "Business Intelligence QA/Test",
+      "description": "BI QA environment for quality assurance testing",
+      "env_file": ".env.biqat",
+      "url_domain": "miloginbiqa.michigan.gov"
+    },
+    "wiqat": {
+      "name": "Web Infrastructure QA/Test",
+      "description": "WI QA environment for quality assurance testing",
+      "env_file": ".env.wiqat",
+      "url_domain": "miloginwiqa.michigan.gov"
+    },
+    "biprt": {
+      "name": "Business Intelligence Production",
+      "description": "BI Production environment - handle with care",
+      "env_file": ".env.biprt",
+      "url_domain": "miloginbi.michigan.gov"
+    },
+    "wiprt": {
+      "name": "Web Infrastructure Production",
+      "description": "WI Production environment - handle with care",
+      "env_file": ".env.wiprt",
+      "url_domain": "miloginwi.michigan.gov"
+    }
+  },
+  "usage_notes": [
+    "Set environment via: export ENVIRONMENT=bidevt (or set ENVIRONMENT=bidevt on Windows)",
+    "Load appropriate .env file using python-dotenv",
+    "Never commit .env.* files to version control",
+    "Add .env.* to .gitignore"
+  ]
+}
