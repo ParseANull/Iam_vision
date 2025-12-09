@@ -39,7 +39,50 @@ const AppState = {
         defaultEnvironments: [],
         defaultDataTypes: {},
         rememberSelection: true,
-        autoLoadOnSelect: true
+        autoLoadOnSelect: true,
+        autoCollapseSidebar: true
+    }
+};
+
+/**
+ * Color palette for environments (IBM Carbon Design colors)
+ */
+const EnvironmentColors = {
+    palette: [
+        '#0f62fe', // Blue
+        '#24a148', // Green
+        '#da1e28', // Red
+        '#8a3ffc', // Purple
+        '#ff7eb6', // Magenta
+        '#fa4d56', // Red (light)
+        '#0072c3', // Blue (dark)
+        '#198038', // Green (dark)
+        '#6929c4', // Purple (dark)
+        '#d12765', // Magenta (dark)
+    ],
+    cache: {},
+    
+    /**
+     * Get color for an environment
+     */
+    getColor(envId) {
+        if (!this.cache[envId]) {
+            const envList = Object.keys(AppState.availableEnvironments || {});
+            const index = envList.indexOf(envId);
+            this.cache[envId] = this.palette[index % this.palette.length];
+        }
+        return this.cache[envId];
+    },
+    
+    /**
+     * Get all colors for selected environments
+     */
+    getSelectedColors() {
+        return AppState.selectedEnvironments.map(envId => ({
+            envId,
+            color: this.getColor(envId),
+            name: AppState.availableEnvironments[envId]?.name || envId
+        }));
     }
 };
 
@@ -500,6 +543,47 @@ function updateMetricsMultiEnv(aggregatedData) {
     document.getElementById('total-federations').textContent = aggregatedData.federations.length;
     document.getElementById('total-mfa').textContent = aggregatedData.mfaConfigurations.length;
     document.getElementById('total-attributes').textContent = aggregatedData.attributes.length;
+    
+    // Update environment legend
+    updateEnvironmentLegend();
+}
+
+/**
+ * Update environment legend display
+ */
+function updateEnvironmentLegend() {
+    const legend = document.getElementById('environment-legend');
+    const itemsContainer = document.getElementById('environment-legend-items');
+    
+    if (!legend || !itemsContainer) return;
+    
+    // Show legend only when multiple environments selected
+    if (AppState.selectedEnvironments.length > 1) {
+        legend.style.display = 'flex';
+        
+        // Clear and populate
+        itemsContainer.innerHTML = '';
+        
+        const colors = EnvironmentColors.getSelectedColors();
+        colors.forEach(({ envId, color, name }) => {
+            const item = document.createElement('div');
+            item.className = 'environment-legend-item';
+            
+            const colorBox = document.createElement('div');
+            colorBox.className = 'environment-legend-color';
+            colorBox.style.backgroundColor = color;
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'environment-legend-name';
+            nameSpan.textContent = name;
+            
+            item.appendChild(colorBox);
+            item.appendChild(nameSpan);
+            itemsContainer.appendChild(item);
+        });
+    } else {
+        legend.style.display = 'none';
+    }
 }
 
 /**

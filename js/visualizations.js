@@ -56,8 +56,11 @@ const Visualizations = {
             .style('max-width', '100%')
             .style('height', 'auto');
         
-        // Color scale
+        // Color scale - use environment colors if available
         const color = d3.scaleOrdinal(d3.schemeCategory10);
+        const useEnvColors = window.EnvironmentColors && window.AppState && 
+                             window.AppState.selectedEnvironments && 
+                             window.AppState.selectedEnvironments.length > 1;
         
         // Create tooltip
         const tooltip = this.createTooltip();
@@ -71,16 +74,33 @@ const Visualizations = {
         cell.append('rect')
             .attr('width', d => d.x1 - d.x0)
             .attr('height', d => d.y1 - d.y0)
-            .attr('fill', d => color(d.parent.data.name))
+            .attr('fill', d => {
+                // If apps have environment info and we're in multi-env mode, use env colors
+                if (useEnvColors && d.data.apps && d.data.apps[0] && d.data.apps[0]._environmentId) {
+                    // Use color from first app in category (categories may have mixed envs)
+                    return window.EnvironmentColors.getColor(d.data.apps[0]._environmentId);
+                }
+                // Otherwise use category colors
+                return color(d.parent.data.name);
+            })
             .attr('opacity', 0.7)
             .on('mouseover', function(event, d) {
                 d3.select(this).attr('opacity', 1);
+                
+                // Check if we have environment info
+                let envInfo = '';
+                if (d.data.apps && d.data.apps[0] && d.data.apps[0]._environmentName) {
+                    const uniqueEnvs = [...new Set(d.data.apps.map(app => app._environmentName))];
+                    envInfo = `<p><strong>Environment${uniqueEnvs.length > 1 ? 's' : ''}:</strong> ${uniqueEnvs.join(', ')}</p>`;
+                }
+                
                 tooltip.style('display', 'block')
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 10) + 'px')
                     .html(`
                         <h4>${d.parent.data.name}</h4>
                         <p><strong>Applications:</strong> ${d.value}</p>
+                        ${envInfo}
                     `);
             })
             .on('mousemove', function(event) {
@@ -272,6 +292,11 @@ const Visualizations = {
             .attr('class', 'link')
             .attr('stroke-width', 2);
         
+        // Check if using environment colors
+        const useEnvColors = window.EnvironmentColors && window.AppState && 
+                             window.AppState.selectedEnvironments && 
+                             window.AppState.selectedEnvironments.length > 1;
+        
         // Draw nodes
         const node = svg.append('g')
             .selectAll('circle')
@@ -279,10 +304,21 @@ const Visualizations = {
             .join('circle')
             .attr('class', 'node')
             .attr('r', 8)
-            .attr('fill', '#0f62fe')
+            .attr('fill', d => {
+                if (useEnvColors && d.data._environmentId) {
+                    return window.EnvironmentColors.getColor(d.data._environmentId);
+                }
+                return '#0f62fe';
+            })
             .call(this.drag(simulation))
             .on('mouseover', function(event, d) {
                 d3.select(this).attr('r', 12);
+                
+                let envInfo = '';
+                if (d.data._environmentName) {
+                    envInfo = `<p><strong>Environment:</strong> ${d.data._environmentName}</p>`;
+                }
+                
                 tooltip.style('display', 'block')
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 10) + 'px')
@@ -290,6 +326,7 @@ const Visualizations = {
                         <h4>${d.name}</h4>
                         <p><strong>Type:</strong> ${d.type}</p>
                         <p><strong>ID:</strong> ${d.id}</p>
+                        ${envInfo}
                     `);
             })
             .on('mousemove', function(event) {
