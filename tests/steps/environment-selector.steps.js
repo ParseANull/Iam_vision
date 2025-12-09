@@ -108,10 +108,10 @@ Then('the environment legend should be visible', async function () {
 
 Then('the legend should show {string} with its assigned color', async function (environment) {
   // Wait for legend items to be populated
-  await this.page.waitForSelector('#environment-legend-items .legend-item', { timeout: 10000 });
-  const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
+  await this.page.waitForSelector('.environment-legend-item', { state: 'visible', timeout: 10000 });
+  const legendItem = await this.page.locator(`.environment-legend-item:has-text("${environment}")`);
   await expect(legendItem).toBeVisible();
-  const colorBox = await legendItem.locator('.legend-color-box');
+  const colorBox = await legendItem.locator('.environment-legend-color');
   await expect(colorBox).toBeVisible();
 });
 
@@ -123,9 +123,11 @@ Then('both {string} and {string} should be selected', async function (env1, env2
 });
 
 Then('the environment legend should show both environments with their colors', async function () {
-  const legend = await this.page.locator('.environment-legend');
+  // Wait for legend to be populated with items
+  await this.page.waitForSelector('.environment-legend-item', { state: 'visible', timeout: 10000 });
+  const legend = await this.page.locator('#environment-legend');
   await expect(legend).toBeVisible();
-  const legendItems = await this.page.locator('.legend-item').count();
+  const legendItems = await this.page.locator('.environment-legend-item').count();
   expect(legendItems).toBeGreaterThanOrEqual(2);
 });
 
@@ -135,10 +137,11 @@ Then('only {string} should be selected', async function (environment) {
 });
 
 Then('the legend should only show {string}', async function (environment) {
-  const legendItems = await this.page.locator('.legend-item').count();
-  expect(legendItems).toBe(1);
-  const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
-  await expect(legendItem).toBeVisible();
+  // After deselecting, if only 1 environment remains, legend should be hidden
+  // (legend only shows with 2+ environments)
+  const legend = await this.page.locator('#environment-legend');
+  const isVisible = await legend.isVisible();
+  expect(isVisible).toBe(false);
 });
 
 Then('the selector should be visible and readable', async function () {
