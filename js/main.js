@@ -1134,10 +1134,16 @@ function initializeSidebarToggle() {
     const toggleBtn = document.getElementById('sidebar-toggle');
     const content = document.getElementById('main-content');
     
-    if (!toggleBtn || !content) return;
+    if (!toggleBtn || !content) {
+        console.error('Sidebar toggle elements not found:', { toggleBtn, content });
+        return;
+    }
+    
+    console.log('Sidebar toggle initialized');
     
     toggleBtn.addEventListener('click', () => {
         const isCollapsed = content.getAttribute('data-sidebar-collapsed') === 'true';
+        console.log('Sidebar toggle clicked. Current state:', isCollapsed ? 'collapsed' : 'expanded');
         toggleSidebar(!isCollapsed);
     });
 }
@@ -1149,6 +1155,13 @@ function toggleSidebar(shouldExpand) {
     const content = document.getElementById('main-content');
     const sidebar = document.getElementById('filter-sidebar');
     
+    if (!content || !sidebar) {
+        console.error('Cannot toggle sidebar - elements not found');
+        return;
+    }
+    
+    console.log('Toggling sidebar:', shouldExpand ? 'expand' : 'collapse');
+    
     if (shouldExpand) {
         content.setAttribute('data-sidebar-collapsed', 'false');
         sidebar.setAttribute('data-expanded', 'true');
@@ -1156,6 +1169,11 @@ function toggleSidebar(shouldExpand) {
         content.setAttribute('data-sidebar-collapsed', 'true');
         sidebar.setAttribute('data-expanded', 'false');
     }
+    
+    console.log('Sidebar toggled. New state:', {
+        collapsed: content.getAttribute('data-sidebar-collapsed'),
+        expanded: sidebar.getAttribute('data-expanded')
+    });
 }
 
 /**
