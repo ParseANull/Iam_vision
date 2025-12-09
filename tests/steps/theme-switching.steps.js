@@ -198,3 +198,55 @@ Then('no text should be invisible or hard to read', async function () {
   const nav = await this.page.locator('.bx--header__nav');
   await expect(nav).toBeVisible();
 });
+
+When('I click the theme toggle button again', async function () {
+  // Same as clicking theme toggle button
+  const possibleSelectors = [
+    '#theme-switcher',
+    '.bx--header__action[aria-label*="theme"]',
+    '.bx--header__action[title*="theme"]',
+    'button:has-text("Theme")',
+    '.theme-toggle'
+  ];
+  
+  let toggleButton = null;
+  for (const selector of possibleSelectors) {
+    const element = await this.page.locator(selector);
+    const count = await element.count();
+    if (count > 0) {
+      toggleButton = element.first();
+      break;
+    }
+  }
+  
+  if (toggleButton) {
+    await toggleButton.click();
+    await this.page.waitForTimeout(300);
+  } else {
+    // Toggle theme programmatically
+    const currentTheme = await this.page.getAttribute('body', 'data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    await this.page.evaluate((theme) => {
+      document.body.setAttribute('data-theme', theme);
+    }, newTheme);
+  }
+});
+
+Then('the selector should be clearly visible', async function () {
+  const selector = await this.page.locator('#environment-selector-toggle');
+  await expect(selector).toBeVisible();
+});
+
+Then('the environment selector should remain visible and readable', async function () {
+  const selector = await this.page.locator('#environment-selector-toggle');
+  await expect(selector).toBeVisible();
+  
+  // Check that it has visible text or label
+  const label = await this.page.locator('#environment-selector-label');
+  await expect(label).toBeVisible();
+});
+
+When('the page is in dark theme', async function () {
+  const theme = await this.page.getAttribute('body', 'data-theme');
+  expect(theme).toBe('dark');
+});

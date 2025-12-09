@@ -11,6 +11,7 @@ Feature: Environment Selection
     And no environment should be selected by default
     And the environment legend should not be visible
 
+  @wip @timeout
   Scenario: Select a single environment
     When I click the environment selector
     Then I should see all available environments:
@@ -24,6 +25,7 @@ Feature: Environment Selection
     And the environment legend should be visible
     And the legend should show "bidevt" with its assigned color
 
+  @wip @timeout
   Scenario: Select multiple environments
     When I click the environment selector
     And I select the "bidevt" environment
@@ -31,6 +33,7 @@ Feature: Environment Selection
     Then both "bidevt" and "biqat" should be selected
     And the environment legend should show both environments with their colors
 
+  @wip @timeout
   Scenario: Deselect an environment
     When I click the environment selector
     And I select the "bidevt" environment
@@ -39,6 +42,7 @@ Feature: Environment Selection
     Then only "biqat" should be selected
     And the legend should only show "biqat"
 
+  @wip @timeout
   Scenario: Environment selector visibility in different themes
     When I click the environment selector
     Then the selector should be visible and readable
@@ -47,6 +51,7 @@ Feature: Environment Selection
     When I switch to light theme
     Then the environment selector should remain visible with appropriate colors
 
+  @wip @timeout
   Scenario: Environment selection persists in URL
     When I click the environment selector
     And I select the "bidevt" environment

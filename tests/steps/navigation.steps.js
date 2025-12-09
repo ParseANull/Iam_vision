@@ -122,3 +122,19 @@ When('I navigate back to the {string} page', async function (pageName) {
   await navItem.click();
   await this.page.waitForTimeout(500);
 });
+
+When('I scroll down the page', async function () {
+  await this.page.evaluate(() => {
+    window.scrollTo(0, 500);
+  });
+  await this.page.waitForTimeout(500);
+});
+
+Then('the navigation bar should still be visible', async function () {
+  const nav = await this.page.locator('.bx--header');
+  await expect(nav).toBeVisible();
+  
+  // Verify it's at the top (sticky/fixed positioning)
+  const boundingBox = await nav.boundingBox();
+  expect(boundingBox.y).toBeLessThanOrEqual(5); // Allow for small margins
+});

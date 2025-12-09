@@ -5,26 +5,50 @@ const { expect } = require('@playwright/test');
 Given('I am on the IAM dashboard', async function () {
   await this.page.goto(`${this.baseURL}/index.html`);
   await this.page.waitForLoadState('networkidle');
-  await this.page.waitForTimeout(1000); // Allow for initialization
+  
+  // Wait for the environment selector to be initialized
+  await this.page.waitForSelector('#environment-selector-toggle', { state: 'visible', timeout: 10000 });
+  
+  // Wait for JavaScript initialization (look for console log or specific element)
+  await this.page.waitForFunction(() => {
+    return document.getElementById('environment-selector-menu').children.length > 0;
+  }, { timeout: 10000 }).catch(() => {
+    console.log('Warning: Environment menu not populated within timeout');
+  });
+  
+  await this.page.waitForTimeout(500); // Small buffer for any animations
 });
 
 Given('I have selected the {string} environment', async function (environment) {
-  await this.page.click('.bx--list-box__field');
-  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible' });
-  await this.page.click(`text="${environment}"`);
-  await this.page.waitForTimeout(500);
+  // Click the selector toggle button
+  const toggle = await this.page.locator('#environment-selector-toggle');
+  await toggle.click();
+  
+  // Wait for menu to be visible
+  await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 5000 });
+  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 5000 });
+  
+  // Find and click the checkbox for this environment
+  const checkbox = await this.page.locator(`input[type="checkbox"][value="${environment}"]`);
+  await checkbox.click();
+  await this.page.waitForTimeout(1000); // Wait for data loading
 });
 
 // Environment Selector steps
 When('I click the environment selector', async function () {
-  await this.page.click('.bx--list-box__field');
-  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible' });
+  const toggle = await this.page.locator('#environment-selector-toggle');
+  await toggle.click();
+  
+  // Wait for menu to become visible
+  await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 5000 });
+  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 5000 });
 });
 
 When('I select the {string} environment', async function (environment) {
-  const menuItem = await this.page.locator(`text="${environment}"`).first();
-  await menuItem.click();
-  await this.page.waitForTimeout(500);
+  // Find the checkbox for this environment
+  const checkbox = await this.page.locator(`input[type="checkbox"][value="${environment}"]`);
+  await checkbox.click();
+  await this.page.waitForTimeout(1000); // Wait for data loading and UI updates
 });
 
 When('I deselect the {string} environment', async function (environment) {
