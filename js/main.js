@@ -945,6 +945,7 @@ function populateEnvironmentMenu() {
         
         menu.appendChild(item);
     }
+}
 
 /**
  * Handle environment selection toggle
