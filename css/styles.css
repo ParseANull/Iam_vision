@@ -14,11 +14,13 @@ body {
 
 /* Header Customization */
 .bx--header {
-    position: sticky;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 8000;
+    height: var(--header-height);
+    background-color: #161616;
 }
 
 .bx--header__name {
@@ -650,6 +652,7 @@ body[data-theme="dark"] .bx--header .bx--list-box__menu-icon svg {
     grid-template-columns: 256px 1fr;
     gap: 0;
     position: relative;
+    margin-top: var(--header-height);
     min-height: calc(100vh - var(--header-height));
     transition: grid-template-columns 0.3s ease;
 }
@@ -664,7 +667,7 @@ body[data-theme="dark"] .bx--header .bx--list-box__menu-icon svg {
 .sidebar-toggle-btn {
     position: fixed;
     left: 256px;
-    top: 1rem;
+    top: calc(var(--header-height) + 1rem);
     z-index: 7000;
     width: 32px;
     height: 32px;
@@ -708,7 +711,7 @@ body[data-theme="dark"] .bx--header .bx--list-box__menu-icon svg {
     border-right: 1px solid #e0e0e0;
     height: calc(100vh - var(--header-height));
     position: sticky;
-    top: 0;
+    top: var(--header-height);
     overflow-y: auto;
     transition: opacity 0.3s ease;
 }
