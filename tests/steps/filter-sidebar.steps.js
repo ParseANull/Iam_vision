@@ -2,10 +2,11 @@ const { When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 
 // Sidebar steps
-Then('the filter sidebar should be collapsed by default', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
-  const isCollapsed = await sidebar.getAttribute('data-sidebar-collapsed');
-  expect(isCollapsed).toBe('true');
+Then('the filter sidebar should be expanded after selecting environment', async function () {
+  // Sidebar auto-expands when first environment is selected
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  expect(isExpanded).toBe('true');
 });
 
 Then('the sidebar toggle button should be visible', async function () {
@@ -24,9 +25,9 @@ When('I click the sidebar toggle button', async function () {
 });
 
 Then('the filter sidebar should expand', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
-  const isCollapsed = await sidebar.getAttribute('data-sidebar-collapsed');
-  expect(isCollapsed).toBe('false');
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  expect(isExpanded).toBe('true');
 });
 
 Then('the data type filters should be visible', async function () {
@@ -35,9 +36,9 @@ Then('the data type filters should be visible', async function () {
 });
 
 Then('the filter sidebar should collapse', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
-  const isCollapsed = await sidebar.getAttribute('data-sidebar-collapsed');
-  expect(isCollapsed).toBe('true');
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  expect(isExpanded).toBe('false');
 });
 
 Then('the data type filters should not be visible', async function () {

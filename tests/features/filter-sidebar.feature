@@ -7,20 +7,21 @@ Feature: Filter Sidebar
     Given I am on the IAM dashboard
     And I have selected the "bidevt" environment
 
-  Scenario: Sidebar initial state
-    Then the filter sidebar should be collapsed by default
+  Scenario: Sidebar auto-expands after environment selection
+    Then the filter sidebar should be expanded after selecting environment
     And the sidebar toggle button should be visible
-
-  Scenario: Expand the sidebar
-    When I click the sidebar toggle button
-    Then the filter sidebar should expand
     And the data type filters should be visible
 
   Scenario: Collapse the sidebar
     When I click the sidebar toggle button
-    And I click the sidebar toggle button again
     Then the filter sidebar should collapse
     And the data type filters should not be visible
+
+  Scenario: Re-expand the sidebar
+    When I click the sidebar toggle button
+    And I click the sidebar toggle button again
+    Then the filter sidebar should expand
+    And the data type filters should be visible
 
   Scenario: Accordion sections are present
     When I click the sidebar toggle button
