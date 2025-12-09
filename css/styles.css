@@ -336,3 +336,58 @@ body[data-theme="dark"] .axis line {
     max-width: 500px;
     margin: 0 auto;
 }
+
+/* Environment Selection Prompt */
+.bx--loading-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    min-height: 400px;
+}
+
+.selection-prompt-title {
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: #161616;
+    margin: 0;
+}
+
+.selection-prompt-subtitle {
+    font-size: 1rem;
+    color: #525252;
+    margin: 0;
+    max-width: 500px;
+    text-align: center;
+}
+
+/* Environment Selector (Header) - Placeholder for Phase 2 */
+.environment-selector-container {
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    margin-left: auto;
+}
+
+.environment-selector {
+    background-color: transparent;
+    color: #f4f4f4;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem;
+    border-radius: 0;
+    font-size: 0.875rem;
+    min-width: 220px;
+    cursor: pointer;
+}
+
+.environment-selector:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.environment-selector:focus {
+    outline: 2px solid #0f62fe;
+    outline-offset: -2px;
+}
