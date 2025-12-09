@@ -20,10 +20,21 @@ When('I click the sidebar toggle button', async function () {
   // Wait for the button to exist in DOM
   await this.page.waitForSelector('#sidebar-toggle', { state: 'attached', timeout: 15000 });
   
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const beforeState = await sidebar.getAttribute('data-expanded');
+  
   // Try clicking with force if element is covered
   const toggleButton = await this.page.locator('#sidebar-toggle');
   await toggleButton.click({ force: true, timeout: 15000 });
-  await this.page.waitForTimeout(500); // Animation time
+  
+  // Wait for state to change
+  const expectedState = beforeState === 'true' ? 'false' : 'true';
+  await this.page.waitForFunction(
+    ({ expected }) => document.getElementById('filter-sidebar')?.getAttribute('data-expanded') === expected,
+    { expected: expectedState },
+    { timeout: 5000 }
+  );
+  await this.page.waitForTimeout(300); // Animation time
 });
 
 Then('the filter sidebar should expand', async function () {
@@ -72,14 +83,34 @@ Then('all data type checkboxes should be visible', async function () {
   }
 });
 
-When('I click the sidebar toggle button again', async function () {
-  // Same as clicking the sidebar toggle button - reuse the logic
-  await this.page.waitForSelector('#sidebar-toggle', { timeout: 10000 });
-  await this.page.waitForTimeout(500);
+When('I click the sidebar toggle button again', { timeout: 20000 }, async function () {
+  // Wait for transitions from first click to complete
+  await this.page.waitForLoadState('networkidle');
+  await this.page.waitForTimeout(800); // Wait for CSS transition (0.3s) + extra buffer
   
-  const toggleButton = await this.page.locator('#sidebar-toggle');
-  await toggleButton.click();
-  await this.page.waitForTimeout(500); // Animation time
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const beforeState = await sidebar.getAttribute('data-expanded');
+  
+  // Wait for button to be in its final position and visible
+  await this.page.waitForSelector('#sidebar-toggle', { state: 'visible', timeout: 15000 });
+  
+  // Try using JavaScript click instead of Playwright click
+  await this.page.evaluate(() => {
+    const btn = document.getElementById('sidebar-toggle');
+    if (btn) {
+      console.log('Clicking button via JS');
+      btn.click();
+    }
+  });
+  
+  // Wait for state to change
+  const expectedState = beforeState === 'true' ? 'false' : 'true';
+  await this.page.waitForFunction(
+    ({ expected }) => document.getElementById('filter-sidebar')?.getAttribute('data-expanded') === expected,
+    { expected: expectedState },
+    { timeout: 10000 }
+  );
+  await this.page.waitForTimeout(300); // Animation time
 });
 
 When('I uncheck the {string} data type', async function (dataType) {

@@ -715,13 +715,13 @@ body[data-theme="dark"] .bx--header .bx--list-box__menu-icon svg {
     position: sticky;
     top: var(--header-height);
     overflow-y: auto;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 
 [data-sidebar-collapsed="true"] .filter-sidebar {
-    transform: translateX(-100%);
     opacity: 0;
     pointer-events: none;
+    overflow: hidden;
 }
 
 .filter-sidebar-header {
