@@ -1144,7 +1144,7 @@ function initializeSidebarToggle() {
     toggleBtn.addEventListener('click', () => {
         const isCollapsed = content.getAttribute('data-sidebar-collapsed') === 'true';
         console.log('Sidebar toggle clicked. Current state:', isCollapsed ? 'collapsed' : 'expanded');
-        toggleSidebar(!isCollapsed);
+        toggleSidebar(isCollapsed); // If collapsed, expand (true). If expanded, collapse (false).
     });
 }
 
