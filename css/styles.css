@@ -650,8 +650,7 @@ body[data-theme="dark"] .bx--header .bx--list-box__menu-icon svg {
     grid-template-columns: 256px 1fr;
     gap: 0;
     position: relative;
-    margin-top: var(--header-height);
-    min-height: calc(100vh - var(--header-height));
+    min-height: 100vh;
     transition: grid-template-columns 0.3s ease;
 }
 
@@ -707,11 +706,12 @@ body[data-theme="dark"] .bx--header .bx--list-box__menu-icon svg {
 .filter-sidebar {
     background-color: #f4f4f4;
     border-right: 1px solid #e0e0e0;
-    height: calc(100vh - var(--header-height));
+    height: 100vh;
     position: sticky;
-    top: var(--header-height);
+    top: 0;
     overflow-y: auto;
     transition: opacity 0.3s ease;
+    padding-top: var(--header-height);
 }
 
 [data-sidebar-collapsed="true"] .filter-sidebar {
@@ -1036,6 +1036,7 @@ body[data-theme="dark"] .data-limit-description {
 .main-visualization-area {
     min-height: calc(100vh - var(--header-height));
     padding: 2rem;
+    padding-top: calc(var(--header-height) + 2rem);
 }
 
 /* ============================================================
