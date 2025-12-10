@@ -4,8 +4,9 @@ const { expect } = require('@playwright/test');
 // Helper to convert display names to internal data type names
 function convertDataTypeName(displayName) {
   const nameMap = {
-    'mfa': 'mfa_config',
-    'mfa config': 'mfa_config',
+    'mfa': 'mfa_configurations',
+    'mfa config': 'mfa_configurations',
+    'mfa configurations': 'mfa_configurations',
     'applications': 'applications',
     'federations': 'federations',
     'attributes': 'attributes'
