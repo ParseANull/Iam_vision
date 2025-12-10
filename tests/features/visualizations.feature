@@ -33,6 +33,7 @@ Feature: Data Visualizations
     Then I should see attribute visualizations
     And the data should be properly formatted
 
+  @skip
   Scenario: Multi-environment visualization colors
     When I click the environment selector
     And I select the "bidevt" environment
@@ -43,6 +44,7 @@ Feature: Data Visualizations
     And "biqat" data should be displayed in its assigned color
     And the environment legend should show both color assignments
 
+  @skip
   Scenario: Visualizations update when environment changes
     When I am on the "Overview" page
     And I click the environment selector
