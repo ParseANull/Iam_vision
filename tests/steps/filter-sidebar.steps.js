@@ -213,7 +213,15 @@ When('I uncheck the {string} data type', { timeout: 20000 }, async function (dat
   const isChecked = await checkbox.isChecked();
   if (isChecked) {
     await checkbox.click({ force: true });
-    await this.page.waitForTimeout(500);
+    // Wait for the checkbox to actually become unchecked
+    await this.page.waitForFunction(
+      (id) => {
+        const cb = document.getElementById(id);
+        return cb && !cb.checked;
+      },
+      checkboxId,
+      { timeout: 5000 }
+    );
   }
 });
 
