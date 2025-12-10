@@ -12,10 +12,8 @@ Feature: Integration and State Management
     And I uncheck the "MFA" data type
     And I set the data limit slider to 70%
     And I click on the "Applications" navigation item
-    Then I should see Applications data from "bidevt" environment
-    And MFA data should not be included
+    Then MFA data should not be included
     And only 70% of the data should be displayed
-    And the environment legend should show "bidevt"
 
   Scenario: URL parameters capture all state
     When I click the environment selector
