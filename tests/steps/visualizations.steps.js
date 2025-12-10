@@ -90,8 +90,8 @@ Then('the environment legend should show both color assignments', async function
 Then('the visualizations should update to show {string} data', async function (environment) {
   // Wait for data to load and visualizations to update
   await this.page.waitForTimeout(2000);
-  const legend = await this.page.locator('.environment-legend').first();
-  await expect(legend).toBeVisible({ timeout: 15000 });
+  // Wait for any legend to appear (multiple environments)
+  await this.page.waitForSelector('.environment-legend', { state: 'visible', timeout: 15000 });
   const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
   await expect(legendItem).toBeVisible({ timeout: 15000 });
 });

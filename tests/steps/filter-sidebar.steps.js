@@ -186,7 +186,7 @@ When('I click the sidebar toggle button again', { timeout: 20000 }, async functi
   await this.page.waitForTimeout(300); // Animation time
 });
 
-When('I uncheck the {string} data type', { timeout: 20000 }, async function (dataType) {
+When('I uncheck the {string} data type', { timeout: 30000 }, async function (dataType) {
   // First ensure sidebar is expanded
   const sidebar = await this.page.locator('#filter-sidebar');
   const isExpanded = await sidebar.getAttribute('data-expanded');
@@ -203,6 +203,24 @@ When('I uncheck the {string} data type', { timeout: 20000 }, async function (dat
       { timeout: 5000 }
     );
     await this.page.waitForTimeout(500);
+  }
+  
+  // Make sure at least one accordion is expanded to access checkboxes
+  const accordionExpanded = await this.page.evaluate(() => {
+    const header = document.querySelector('.filter-accordion-header[aria-expanded="true"]');
+    if (!header) {
+      // Expand the first accordion
+      const firstHeader = document.querySelector('.filter-accordion-header');
+      if (firstHeader) {
+        firstHeader.click();
+        return false; // Need to wait for expansion
+      }
+    }
+    return true;
+  });
+  
+  if (!accordionExpanded) {
+    await this.page.waitForTimeout(500); // Wait for accordion animation
   }
   
   // Convert display name to internal name

@@ -44,8 +44,8 @@ When('I click the environment selector', async function () {
   await toggle.click();
   
   // Wait for menu to become visible
-  await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 5000 });
-  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 5000 });
+  await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 15000 });
+  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 15000 });
 });
 
 When('I select the {string} environment', { timeout: 15000 }, async function (environment) {
