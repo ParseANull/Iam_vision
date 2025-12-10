@@ -9,7 +9,6 @@ Feature: Integration and State Management
   Scenario: Complete workflow from start to finish
     When I click the environment selector
     And I select the "bidevt" environment
-    And I click the sidebar toggle button
     And I uncheck the "MFA" data type
     And I expand the "Data Limiting" accordion
     And I set the data limit slider to 70%
@@ -23,7 +22,6 @@ Feature: Integration and State Management
     When I click the environment selector
     And I select the "bidevt" environment
     And I select the "biqat" environment
-    And I click the sidebar toggle button
     And I uncheck the "Federations" data type
     And I click on the "Applications" navigation item
     Then the URL should contain all state parameters
@@ -33,7 +31,6 @@ Feature: Integration and State Management
   Scenario: State persists across page refreshes
     When I click the environment selector
     And I select the "widevt" environment
-    And I click the sidebar toggle button
     And I uncheck the "Attributes" data type
     And I click on the "Federations" navigation item
     And I click the theme toggle button
