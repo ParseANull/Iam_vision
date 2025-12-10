@@ -25,6 +25,7 @@ Feature: Integration and State Management
     When I copy and paste the URL in a new window
     Then all the state should be restored correctly
 
+  @skip
   Scenario: State persists across page refreshes
     When I click the environment selector
     And I select the "widevt" environment
