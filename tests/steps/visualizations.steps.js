@@ -21,7 +21,7 @@ Then('each card should show a count and label', async function () {
 });
 
 Then('I should see application visualizations', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 
@@ -35,7 +35,7 @@ Then('the visualizations should be color-coded by environment', async function (
 });
 
 Then('I should see federation visualizations', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 
@@ -47,22 +47,22 @@ Then('the data should be from the selected environment', async function () {
 });
 
 Then('I should see MFA configuration visualizations', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 
 Then('the data should represent MFA settings', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 
 Then('I should see attribute visualizations', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 
 Then('the data should be properly formatted', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 

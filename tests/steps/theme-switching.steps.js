@@ -147,17 +147,17 @@ Then('all checkboxes and labels should be readable', async function () {
 });
 
 Then('the visualizations should be styled for the current theme', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 
 Then('the visualizations should update their styling', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 
 Then('data should remain clearly visible', async function () {
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 

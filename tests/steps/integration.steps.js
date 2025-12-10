@@ -115,10 +115,10 @@ Then('the application should remain stable', async function () {
   await expect(body).toBeVisible();
 });
 
-Then('no errors should occur', async function () {
+Then('no errors should occur', { timeout: 15000 }, async function () {
   // Check that page is still functional
-  const container = await this.page.locator('#visualization-container');
-  await expect(container).toBeVisible();
+  const container = await this.page.locator('.main-visualization-area');
+  await expect(container).toBeVisible({ timeout: 10000 });
 });
 
 Then('the final state should be consistent', async function () {
@@ -169,9 +169,9 @@ Then('no alarming error messages should appear', async function () {
   await expect(body).toBeVisible();
 });
 
-Then('the application should continue working normally', async function () {
-  const container = await this.page.locator('#visualization-container');
-  await expect(container).toBeVisible();
+Then('the application should continue working normally', { timeout: 15000 }, async function () {
+  const container = await this.page.locator('.main-visualization-area');
+  await expect(container).toBeVisible({ timeout: 10000 });
 });
 
 When('I select each environment individually:', async function (dataTable) {

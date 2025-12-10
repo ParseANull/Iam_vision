@@ -45,7 +45,7 @@ When('I set the data limit slider to {int}%', async function (percentage) {
 
 Then('the visualizations should reload with limited data', async function () {
   await this.page.waitForTimeout(500);
-  const container = await this.page.locator('#visualization-container');
+  const container = await this.page.locator('.main-visualization-area');
   await expect(container).toBeVisible();
 });
 

@@ -47,37 +47,37 @@ Then('the {string} navigation item should not be active', async function (itemNa
 
 Then('the Overview page content should be displayed', async function () {
   // Wait for data to load and visualizations to render
-  await this.page.waitForSelector('#visualization-container', { timeout: 15000 });
+  await this.page.waitForSelector('.main-visualization-area', { timeout: 15000 });
   await this.page.waitForTimeout(1000); // Wait for data loading
-  const content = await this.page.locator('#visualization-container');
+  const content = await this.page.locator('.main-visualization-area');
   await expect(content).toBeVisible();
 });
 
 Then('the Applications page content should be displayed', async function () {
-  await this.page.waitForSelector('#visualization-container', { timeout: 15000 });
+  await this.page.waitForSelector('.main-visualization-area', { timeout: 15000 });
   await this.page.waitForTimeout(1000);
-  const content = await this.page.locator('#visualization-container');
+  const content = await this.page.locator('.main-visualization-area');
   await expect(content).toBeVisible();
 });
 
 Then('the Federations page content should be displayed', async function () {
-  await this.page.waitForSelector('#visualization-container', { timeout: 15000 });
+  await this.page.waitForSelector('.main-visualization-area', { timeout: 15000 });
   await this.page.waitForTimeout(1000);
-  const content = await this.page.locator('#visualization-container');
+  const content = await this.page.locator('.main-visualization-area');
   await expect(content).toBeVisible();
 });
 
 Then('the MFA page content should be displayed', async function () {
-  await this.page.waitForSelector('#visualization-container', { timeout: 15000 });
+  await this.page.waitForSelector('.main-visualization-area', { timeout: 15000 });
   await this.page.waitForTimeout(1000);
-  const content = await this.page.locator('#visualization-container');
+  const content = await this.page.locator('.main-visualization-area');
   await expect(content).toBeVisible();
 });
 
 Then('the Attributes page content should be displayed', async function () {
-  await this.page.waitForSelector('#visualization-container', { timeout: 15000 });
+  await this.page.waitForSelector('.main-visualization-area', { timeout: 15000 });
   await this.page.waitForTimeout(1000);
-  const content = await this.page.locator('#visualization-container');
+  const content = await this.page.locator('.main-visualization-area');
   await expect(content).toBeVisible();
 });
 
@@ -108,7 +108,7 @@ Then('the {string} item should have a distinct visual style', async function (it
 
 Then('the navigation should work correctly', async function () {
   // Verify we can navigate and content updates
-  const content = await this.page.locator('#visualization-container');
+  const content = await this.page.locator('.main-visualization-area');
   await expect(content).toBeVisible();
 });
 
