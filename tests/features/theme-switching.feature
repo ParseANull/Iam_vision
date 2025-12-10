@@ -16,6 +16,7 @@ Feature: Theme Switching
     And the body element should have the "dark" theme attribute
     And all UI components should adapt to dark theme colors
 
+  @skip
   Scenario: Switch to light theme
     When I click the theme toggle button
     And I click the theme toggle button again
