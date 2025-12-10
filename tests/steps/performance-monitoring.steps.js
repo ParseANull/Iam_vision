@@ -38,6 +38,18 @@ Then('the slider label should display {string}', async function (expectedText) {
 });
 
 When('I set the data limit slider to {int}%', { timeout: 15000 }, async function (percentage) {
+  // Ensure sidebar is expanded
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  
+  if (isExpanded !== 'true') {
+    await this.page.evaluate(() => {
+      const btn = document.getElementById('sidebar-toggle');
+      if (btn) btn.click();
+    });
+    await this.page.waitForTimeout(500);
+  }
+  
   const slider = await this.page.locator('#data-limit-slider');
   await slider.waitFor({ state: 'visible', timeout: 10000 });
   await slider.fill(percentage.toString());
