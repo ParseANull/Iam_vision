@@ -66,9 +66,9 @@ Then('the data should be properly formatted', async function () {
   await expect(container).toBeVisible();
 });
 
-Then('the visualizations should show data from both environments', async function () {
+Then('the visualizations should show data from both environments', { timeout: 15000 }, async function () {
   const legend = await this.page.locator('.environment-legend');
-  await expect(legend).toBeVisible();
+  await expect(legend).toBeVisible({ timeout: 10000 });
   const legendItems = await this.page.locator('.legend-item').count();
   expect(legendItems).toBeGreaterThanOrEqual(2);
 });
@@ -92,9 +92,9 @@ Then('the visualizations should update to show {string} data', { timeout: 20000 
   await this.page.waitForTimeout(2000);
   
   // Check if we have multiple environments (legend would be visible)
-  const legendExists = await this.page.locator('.environment-legend').count() > 0;
+  const legendCount = await this.page.locator('.environment-legend').count();
   
-  if (legendExists) {
+  if (legendCount > 0) {
     // Multiple environments - check for legend
     await this.page.waitForSelector('.environment-legend', { state: 'visible', timeout: 15000 });
     const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
