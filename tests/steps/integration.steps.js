@@ -56,8 +56,14 @@ Then('the dark theme should still be applied', async function () {
 });
 
 When('I rapidly select and deselect environments', { timeout: 20000 }, async function () {
-  await this.page.click('#environment-selector-toggle');
-  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 5000 });
+  // Ensure menu is open
+  const menu = await this.page.locator('#environment-selector-menu');
+  const isVisible = await menu.isVisible().catch(() => false);
+  
+  if (!isVisible) {
+    await this.page.click('#environment-selector-toggle');
+    await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 5000 });
+  }
   
   const environments = ['bidevt', 'widevt', 'biqat'];
   for (let i = 0; i < 3; i++) {
