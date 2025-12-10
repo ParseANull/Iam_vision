@@ -22,8 +22,7 @@ Feature: Environment Selection
       | biprt  |
     When I select the "bidevt" environment
     Then the "bidevt" environment should be selected
-    And the environment legend should be visible
-    And the legend should show "bidevt" with its assigned color
+    And the environment legend should not be visible
 
   @wip @timeout
   Scenario: Select multiple environments
