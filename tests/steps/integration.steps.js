@@ -75,7 +75,19 @@ When('I rapidly select and deselect environments', { timeout: 20000 }, async fun
   }
 });
 
-When('I rapidly toggle data types', async function () {
+When('I rapidly toggle data types', { timeout: 20000 }, async function () {
+  // Ensure sidebar is expanded
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  
+  if (isExpanded !== 'true') {
+    await this.page.evaluate(() => {
+      const btn = document.getElementById('sidebar-toggle');
+      if (btn) btn.click();
+    });
+    await this.page.waitForTimeout(500);
+  }
+  
   const dataTypes = await this.page.locator('.data-type-item input[type="checkbox"]');
   const count = await dataTypes.count();
   
