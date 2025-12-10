@@ -129,12 +129,12 @@ Then('the active navigation item should remain clearly visible', async function 
 });
 
 Then('the sidebar should be styled appropriately for the current theme', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
+  const sidebar = await this.page.locator('#filter-sidebar');
   await expect(sidebar).toBeVisible();
 });
 
 Then('the sidebar styling should update to match the new theme', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
+  const sidebar = await this.page.locator('#filter-sidebar');
   await expect(sidebar).toBeVisible();
 });
 

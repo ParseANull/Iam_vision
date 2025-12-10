@@ -357,19 +357,19 @@ Then('the {string} data type should still be unchecked', { timeout: 15000 }, asy
 });
 
 Then('the sidebar should be expanded', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
-  const isCollapsed = await sidebar.getAttribute('data-sidebar-collapsed');
-  expect(isCollapsed).toBe('false');
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  expect(isExpanded).toBe('true');
 });
 
 Then('the sidebar should remain expanded', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
-  const isCollapsed = await sidebar.getAttribute('data-sidebar-collapsed');
-  expect(isCollapsed).toBe('false');
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  expect(isExpanded).toBe('true');
 });
 
 Then('the sidebar styling should adapt to dark theme', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
+  const sidebar = await this.page.locator('#filter-sidebar');
   await expect(sidebar).toBeVisible();
   // Verify dark theme is applied
   const bodyTheme = await this.page.getAttribute('body', 'data-theme');

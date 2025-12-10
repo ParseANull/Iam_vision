@@ -105,9 +105,9 @@ Then('the final state should be consistent', async function () {
 });
 
 Then('the sidebar should remain in its state', async function () {
-  const sidebar = await this.page.locator('.bx--side-nav');
-  const isCollapsed = await sidebar.getAttribute('data-sidebar-collapsed');
-  expect(isCollapsed).toBeTruthy();
+  const sidebar = await this.page.locator('#filter-sidebar');
+  const isExpanded = await sidebar.getAttribute('data-expanded');
+  expect(isExpanded).toBeTruthy();
 });
 
 Then('the data limit setting should persist', async function () {
