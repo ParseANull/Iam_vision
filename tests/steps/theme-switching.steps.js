@@ -91,6 +91,12 @@ Then('all UI components should adapt to dark theme colors', async function () {
 });
 
 Then('the page should switch to light theme', async function () {
+  // Wait for theme to change
+  await this.page.waitForFunction(
+    () => document.body.getAttribute('data-theme') === 'light',
+    {},
+    { timeout: 5000 }
+  );
   const body = await this.page.locator('body');
   const theme = await body.getAttribute('data-theme');
   expect(theme).toBe('light');
