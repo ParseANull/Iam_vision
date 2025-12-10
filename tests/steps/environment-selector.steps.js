@@ -67,8 +67,18 @@ When('I select the {string} environment', { timeout: 15000 }, async function (en
   await this.page.waitForTimeout(2000);
 });
 
-When('I deselect the {string} environment', async function (environment) {
+When('I deselect the {string} environment', { timeout: 15000 }, async function (environment) {
+  // Ensure menu is open
+  const menu = await this.page.locator('#environment-selector-menu');
+  const isVisible = await menu.isVisible().catch(() => false);
+  
+  if (!isVisible) {
+    await this.page.locator('#environment-selector-toggle').click();
+    await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 5000 });
+  }
+  
   const checkbox = await this.page.locator(`input[type="checkbox"][value="${environment}"]`);
+  await checkbox.waitFor({ state: 'visible', timeout: 5000 });
   await checkbox.click();
   await this.page.waitForTimeout(500);
 });
