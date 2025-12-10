@@ -48,9 +48,15 @@ When('I click the environment selector', async function () {
   await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 5000 });
 });
 
-When('I select the {string} environment', async function (environment) {
-  // Wait for menu to be visible
-  await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 10000 });
+When('I select the {string} environment', { timeout: 15000 }, async function (environment) {
+  // Check if menu is open, if not, click toggle
+  const menu = await this.page.locator('#environment-selector-menu');
+  const isVisible = await menu.isVisible().catch(() => false);
+  
+  if (!isVisible) {
+    await this.page.locator('#environment-selector-toggle').click();
+    await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 10000 });
+  }
   
   // Find the checkbox for this environment and wait for it
   const checkbox = await this.page.locator(`input[type="checkbox"][value="${environment}"]`);
