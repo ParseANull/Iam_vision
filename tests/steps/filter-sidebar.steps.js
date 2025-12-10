@@ -261,15 +261,16 @@ Then('the {string} checkbox should be unchecked', { timeout: 15000 }, async func
     await this.page.waitForTimeout(500);
   }
   
-  const checkboxId = `filter-bidevt-${dataType.toLowerCase()}`;
-  await this.page.waitForSelector(`#${checkboxId}`, { state: 'visible', timeout: 10000 });
-  const checkbox = await this.page.locator(`#${checkboxId}`);
+  const internalName = convertDataTypeName(dataType);
+  const checkboxSelector = `input[type="checkbox"][id*="${internalName}"]`;
+  await this.page.waitForSelector(checkboxSelector, { state: 'visible', timeout: 10000 });
+  const checkbox = await this.page.locator(checkboxSelector).first();
   await expect(checkbox).not.toBeChecked();
 });
 
 Then('applications data should not be displayed in visualizations', async function () {
   // This is a visual check - we verify the checkbox state which controls visibility
-  const checkbox = await this.page.locator('#filter-bidevt-applications');
+  const checkbox = await this.page.locator('input[type="checkbox"][id*="applications"]').first();
   await expect(checkbox).not.toBeChecked();
 });
 
@@ -291,14 +292,17 @@ Then('both {string} and {string} should be unchecked', { timeout: 15000 }, async
     await this.page.waitForTimeout(500);
   }
   
-  const checkbox1Id = `filter-bidevt-${type1.toLowerCase()}`;
-  const checkbox2Id = `filter-bidevt-${type2.toLowerCase()}`;
+  const internal1 = convertDataTypeName(type1);
+  const internal2 = convertDataTypeName(type2);
   
-  await this.page.waitForSelector(`#${checkbox1Id}`, { state: 'visible', timeout: 10000 });
-  await this.page.waitForSelector(`#${checkbox2Id}`, { state: 'visible', timeout: 10000 });
+  const selector1 = `input[type="checkbox"][id*="${internal1}"]`;
+  const selector2 = `input[type="checkbox"][id*="${internal2}"]`;
   
-  const checkbox1 = await this.page.locator(`#${checkbox1Id}`);
-  const checkbox2 = await this.page.locator(`#${checkbox2Id}`);
+  await this.page.waitForSelector(selector1, { state: 'visible', timeout: 10000 });
+  await this.page.waitForSelector(selector2, { state: 'visible', timeout: 10000 });
+  
+  const checkbox1 = await this.page.locator(selector1).first();
+  const checkbox2 = await this.page.locator(selector2).first();
   await expect(checkbox1).not.toBeChecked();
   await expect(checkbox2).not.toBeChecked();
 });
@@ -353,9 +357,10 @@ Then('the {string} data type should still be unchecked', { timeout: 15000 }, asy
   }
   
   const internalName = convertDataTypeName(dataType);
-  const checkboxId = `filter-bidevt-${internalName}`;
-  await this.page.waitForSelector(`#${checkboxId}`, { state: 'visible', timeout: 10000 });
-  const checkbox = await this.page.locator(`#${checkboxId}`);
+  // Find the checkbox for this data type in any expanded accordion
+  const checkboxSelector = `input[type="checkbox"][id*="${internalName}"]`;
+  await this.page.waitForSelector(checkboxSelector, { state: 'visible', timeout: 10000 });
+  const checkbox = await this.page.locator(checkboxSelector).first();
   await expect(checkbox).not.toBeChecked();
 });
 
@@ -381,6 +386,6 @@ Then('the sidebar styling should adapt to dark theme', async function () {
 
 Then('MFA data should not be displayed', async function () {
   // This is a visual check - we verify the checkbox state which controls visibility
-  const checkbox = await this.page.locator('#filter-bidevt-mfa_config');
+  const checkbox = await this.page.locator('input[type="checkbox"][id*="mfa_configurations"]').first();
   await expect(checkbox).not.toBeChecked();
 });
