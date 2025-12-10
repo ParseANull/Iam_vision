@@ -89,8 +89,9 @@ Then('the environment legend should not be visible', async function () {
 Then('I should see all available environments:', async function (dataTable) {
   const expectedEnvs = dataTable.raw().flat();
   for (const env of expectedEnvs) {
-    const menuItem = await this.page.locator(`text="${env}"`).first();
-    await expect(menuItem).toBeVisible();
+    // Check for the checkbox which uses the environment ID as value
+    const checkbox = await this.page.locator(`#env-${env}`);
+    await expect(checkbox).toBeVisible();
   }
 });
 
