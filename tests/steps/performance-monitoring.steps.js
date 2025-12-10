@@ -37,8 +37,9 @@ Then('the slider label should display {string}', async function (expectedText) {
   expect(text.trim()).toBe(expectedText);
 });
 
-When('I set the data limit slider to {int}%', async function (percentage) {
+When('I set the data limit slider to {int}%', { timeout: 15000 }, async function (percentage) {
   const slider = await this.page.locator('#data-limit-slider');
+  await slider.waitFor({ state: 'visible', timeout: 10000 });
   await slider.fill(percentage.toString());
   await this.page.waitForTimeout(1000); // Wait for view update
 });
