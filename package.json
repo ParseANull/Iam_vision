@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "IBM Security Verify IAM Dashboard Visualization",
   "scripts": {
-    "test": "cucumber-js --retry 0 --exit --fail-fast 5",
+    "test": "cucumber-js --retry 0 --exit",
     "test:headed": "cucumber-js --parallel 1",
     "test:report": "cucumber-js --format html:reports/test-report.html"
   },
