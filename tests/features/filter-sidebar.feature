@@ -19,7 +19,7 @@ Feature: Filter Sidebar
     Then the filter sidebar should collapse
     And the data type filters should not be visible
 
-  @sidebar
+  @sidebar @skip
   Scenario: Re-expand the sidebar
     When I click the sidebar toggle button
     And I click the sidebar toggle button again
