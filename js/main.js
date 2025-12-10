@@ -216,6 +216,8 @@ async function restoreSessionState() {
             for (const envId of envIds) {
                 await selectEnvironment(envId, true);
             }
+            // Refresh checkbox states after URL restoration
+            populateEnvironmentMenu();
             return;
         }
     }
@@ -231,6 +233,8 @@ async function restoreSessionState() {
                     for (const envId of envIds) {
                         await selectEnvironment(envId, true);
                     }
+                    // Refresh checkbox states after localStorage restoration
+                    populateEnvironmentMenu();
                     return;
                 }
             }

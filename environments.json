@@ -1,37 +1,37 @@
 {
   "environments": {
     "bidevt": {
-      "name": "Business Intelligence Development",
+      "name": "Business Development",
       "description": "BI Dev environment for testing and development",
       "env_file": ".env.bidevt",
       "url_domain": "miloginbidev.michigan.gov"
     },
     "widevt": {
-      "name": "Web Infrastructure Development",
+      "name": "Worker Development",
       "description": "WI Dev environment for testing and development",
       "env_file": ".env.widevt",
       "url_domain": "miloginwidev.michigan.gov"
     },
     "biqat": {
-      "name": "Business Intelligence QA/Test",
+      "name": "Business QA",
       "description": "BI QA environment for quality assurance testing",
       "env_file": ".env.biqat",
       "url_domain": "miloginbiqa.michigan.gov"
     },
     "wiqat": {
-      "name": "Web Infrastructure QA/Test",
+      "name": "Worker QA",
       "description": "WI QA environment for quality assurance testing",
       "env_file": ".env.wiqat",
       "url_domain": "miloginwiqa.michigan.gov"
     },
     "biprt": {
-      "name": "Business Intelligence Production",
+      "name": "Business Production",
       "description": "BI Production environment - handle with care",
       "env_file": ".env.biprt",
       "url_domain": "miloginbi.michigan.gov"
     },
     "wiprt": {
-      "name": "Web Infrastructure Production",
+      "name": "Worker Production",
       "description": "WI Production environment - handle with care",
       "env_file": ".env.wiprt",
       "url_domain": "miloginwi.michigan.gov"
