@@ -2,7 +2,10 @@ const { When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 
 // Integration and state management steps
-Then('I should see Applications data from {string} environment', async function (environment) {
+Then('I should see Applications data from {string} environment', { timeout: 20000 }, async function (environment) {
+  // Wait for page to finish loading after navigation
+  await this.page.waitForLoadState('networkidle', { timeout: 15000 });
+  
   const legend = await this.page.locator('.environment-legend');
   await expect(legend).toBeVisible({ timeout: 15000 });
   const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
@@ -14,7 +17,7 @@ Then('MFA data should not be included', async function () {
   await expect(checkbox).not.toBeChecked();
 });
 
-Then('the environment legend should show {string}', async function (environment) {
+Then('the environment legend should show {string}', { timeout: 20000 }, async function (environment) {
   const legend = await this.page.locator('.environment-legend');
   await expect(legend).toBeVisible({ timeout: 15000 });
   const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
