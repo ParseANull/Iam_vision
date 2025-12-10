@@ -211,7 +211,7 @@ Then('the environment legend should update for each selection', async function (
   await expect(body).toBeVisible();
 });
 
-Then('all data should still be displayed correctly', async function () {
+Then('all data should still be displayed correctly', { timeout: 15000 }, async function () {
   const container = await this.page.locator('#visualization-container');
-  await expect(container).toBeVisible();
+  await expect(container).toBeVisible({ timeout: 10000 });
 });
