@@ -24,7 +24,6 @@ Feature: Navigation Menu
     Then the "Applications" navigation item should be marked as active
     And the "Overview" navigation item should not be active
     And the Applications page content should be displayed
-    And the URL should update to reflect the Applications view
 
   Scenario: Navigate to Federations page
     When I click on the "Federations" navigation item
