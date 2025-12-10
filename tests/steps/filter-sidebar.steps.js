@@ -207,10 +207,13 @@ When('I uncheck the {string} data type', { timeout: 20000 }, async function (dat
   
   // Convert display name to internal name
   const internalName = convertDataTypeName(dataType);
-  const checkboxId = `filter-bidevt-${internalName}`;
-  await this.page.waitForSelector(`#${checkboxId}`, { state: 'visible', timeout: 10000 });
   
-  const checkbox = await this.page.locator(`#${checkboxId}`);
+  // Find the checkbox for this data type in any expanded accordion
+  const checkboxSelector = `input[type="checkbox"][id*="${internalName}"]`;
+  await this.page.waitForSelector(checkboxSelector, { state: 'visible', timeout: 10000 });
+  
+  const checkbox = await this.page.locator(checkboxSelector).first();
+  const checkboxId = await checkbox.getAttribute('id');
   const isChecked = await checkbox.isChecked();
   if (isChecked) {
     // Use JavaScript click to ensure event handlers fire properly
