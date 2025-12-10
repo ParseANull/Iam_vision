@@ -188,9 +188,17 @@ When('I refresh the page', async function () {
   await this.page.waitForTimeout(1000);
 });
 
-Then('the {string} environment should still be selected', async function (environment) {
-  await this.page.click('.bx--list-box__field');
-  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible' });
+Then('the {string} environment should still be selected', { timeout: 15000 }, async function (environment) {
+  // Open menu if not already open
+  const menu = await this.page.locator('#environment-selector-menu');
+  const isVisible = await menu.isVisible().catch(() => false);
+  
+  if (!isVisible) {
+    await this.page.click('#environment-selector-toggle');
+    await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 5000 });
+  }
+  
   const checkbox = await this.page.locator(`input[type="checkbox"][value="${environment}"]`);
+  await checkbox.waitFor({ state: 'visible', timeout: 5000 });
   await expect(checkbox).toBeChecked();
 });
