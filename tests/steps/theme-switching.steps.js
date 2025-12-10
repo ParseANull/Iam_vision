@@ -37,7 +37,7 @@ When('I click the theme toggle button', async function () {
   
   if (toggleButton) {
     await toggleButton.click();
-    await this.page.waitForTimeout(300);
+    await this.page.waitForTimeout(1000);
   } else {
     // Toggle theme via keyboard shortcut or programmatically
     const currentTheme = await this.page.getAttribute('body', 'data-theme');
@@ -45,6 +45,7 @@ When('I click the theme toggle button', async function () {
     await this.page.evaluate((theme) => {
       document.body.setAttribute('data-theme', theme);
     }, newTheme);
+    await this.page.waitForTimeout(500);
   }
 });
 
@@ -227,7 +228,7 @@ When('I click the theme toggle button again', async function () {
   
   if (toggleButton) {
     await toggleButton.click();
-    await this.page.waitForTimeout(300);
+    await this.page.waitForTimeout(1000);
   } else {
     // Toggle theme programmatically
     const currentTheme = await this.page.getAttribute('body', 'data-theme');
