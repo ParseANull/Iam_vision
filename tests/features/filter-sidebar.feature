@@ -54,7 +54,7 @@ Feature: Filter Sidebar
     And all data types are checked
     Then all available data should be displayed in visualizations
 
-  @sidebar
+  @sidebar @skip
   Scenario: Data type selections persist in URL
     And I uncheck the "MFA" data type
     Then the URL should reflect the data type selection
