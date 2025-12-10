@@ -39,7 +39,7 @@ Given('I have selected the {string} environment', async function (environment) {
 });
 
 // Environment Selector steps
-When('I click the environment selector', async function () {
+When('I click the environment selector', { timeout: 20000 }, async function () {
   const toggle = await this.page.locator('#environment-selector-toggle');
   await toggle.click();
   

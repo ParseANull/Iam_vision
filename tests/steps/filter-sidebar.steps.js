@@ -220,17 +220,46 @@ When('I uncheck the {string} data type', { timeout: 30000 }, async function (dat
   });
   
   if (!accordionExpanded) {
-    await this.page.waitForTimeout(500); // Wait for accordion animation
+    await this.page.waitForTimeout(800); // Wait for accordion animation
   }
   
   // Convert display name to internal name
   const internalName = convertDataTypeName(dataType);
   
   // Find the checkbox for this data type in any expanded accordion
+  // Use attached state instead of visible for checkboxes that might be in hidden accordions
   const checkboxSelector = `input[type="checkbox"][id*="${internalName}"]`;
-  await this.page.waitForSelector(checkboxSelector, { state: 'visible', timeout: 20000 });
   
+  // First wait for it to exist in DOM
+  await this.page.waitForSelector(checkboxSelector, { state: 'attached', timeout: 15000 });
+  
+  // Then check if it's visible, if not expand its accordion
   const checkbox = await this.page.locator(checkboxSelector).first();
+  const isVisible = await checkbox.isVisible().catch(() => false);
+  
+  if (!isVisible) {
+    // Find and expand the accordion containing this checkbox
+    await this.page.evaluate((sel) => {
+      const cb = document.querySelector(sel);
+      if (cb) {
+        // Find the parent accordion content
+        const accordionContent = cb.closest('.filter-accordion-content');
+        if (accordionContent) {
+          const accordionId = accordionContent.id;
+          // Find the header that controls this content
+          const header = document.querySelector(`[aria-controls="${accordionId}"]`);
+          if (header && header.getAttribute('aria-expanded') !== 'true') {
+            header.click();
+          }
+        }
+      }
+    }, checkboxSelector);
+    
+    await this.page.waitForTimeout(500);
+  }
+  
+  // Now wait for it to be visible
+  await checkbox.waitFor({ state: 'visible', timeout: 5000 });
   const checkboxId = await checkbox.getAttribute('id');
   const isChecked = await checkbox.isChecked();
   if (isChecked) {

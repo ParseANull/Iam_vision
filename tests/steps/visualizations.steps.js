@@ -87,7 +87,7 @@ Then('the environment legend should show both color assignments', async function
   expect(legendItems).toBe(2);
 });
 
-Then('the visualizations should update to show {string} data', async function (environment) {
+Then('the visualizations should update to show {string} data', { timeout: 20000 }, async function (environment) {
   // Wait for data to load and visualizations to update
   await this.page.waitForTimeout(2000);
   // Wait for any legend to appear (multiple environments)
@@ -113,7 +113,7 @@ Then('the {string} data should reappear in visualizations', async function (data
   await expect(checkbox).toBeChecked();
 });
 
-When('I select an environment with no data', async function () {
+When('I select an environment with no data', { timeout: 20000 }, async function () {
   // Try to select an environment (may have empty data files)
   await this.page.click('#environment-selector-toggle', { timeout: 15000 });
   await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 15000 });

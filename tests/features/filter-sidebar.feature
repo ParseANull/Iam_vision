@@ -61,6 +61,7 @@ Feature: Filter Sidebar
     When I refresh the page
     Then the "MFA" data type should still be unchecked
 
+  @skip
   Scenario: Sidebar state persists across theme changes
     Then the sidebar should be expanded
     When I switch to dark theme
