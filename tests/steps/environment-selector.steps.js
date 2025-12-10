@@ -74,7 +74,7 @@ Then('the environment selector should be visible', async function () {
 
 Then('no environment should be selected by default', async function () {
   const selectedText = await this.page.locator('.bx--list-box__label').textContent();
-  expect(selectedText.trim()).toBe('Select environments');
+  expect(selectedText.trim()).toBe('Select Environments');
 });
 
 Then('the environment legend should not be visible', async function () {
