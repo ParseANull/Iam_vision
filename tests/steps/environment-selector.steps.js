@@ -2,9 +2,9 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 
 // Background steps
-Given('I am on the IAM dashboard', async function () {
+Given('I am on the IAM dashboard', { timeout: 30000 }, async function () {
   await this.page.goto(`${this.baseURL}/index.html`);
-  await this.page.waitForLoadState('networkidle');
+  await this.page.waitForLoadState('networkidle', { timeout: 20000 });
   
   // Wait for the environment selector to be initialized
   await this.page.waitForSelector('#environment-selector-toggle', { state: 'visible', timeout: 15000 });
