@@ -174,7 +174,7 @@ Then('the application should continue working normally', { timeout: 15000 }, asy
   await expect(container).toBeVisible({ timeout: 10000 });
 });
 
-When('I select each environment individually:', async function (dataTable) {
+When('I select each environment individually:', { timeout: 60000 }, async function (dataTable) {
   const environments = dataTable.raw().flat();
   
   for (const env of environments) {
@@ -183,10 +183,13 @@ When('I select each environment individually:', async function (dataTable) {
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(1000);
     
+    // Open environment selector
+    await this.page.click('#environment-selector-toggle');
+    await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 5000 });
+    
     // Select this environment
-    await this.page.click('.bx--list-box__field');
-    await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible' });
-    await this.page.click(`text="${env}"`);
+    const checkbox = await this.page.locator(`input[type="checkbox"][value="${env}"]`);
+    await checkbox.click();
     await this.page.waitForTimeout(1000);
   }
 });
