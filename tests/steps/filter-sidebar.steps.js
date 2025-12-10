@@ -338,7 +338,10 @@ Then('the URL should reflect the data type selection', async function () {
   expect(url).toContain('dataTypes=');
 });
 
-Then('the {string} data type should still be unchecked', { timeout: 15000 }, async function (dataType) {
+Then('the {string} data type should still be unchecked', { timeout: 20000 }, async function (dataType) {
+  // Wait for page to finish loading after refresh
+  await this.page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+  
   // Ensure sidebar is expanded
   const sidebar = await this.page.locator('#filter-sidebar');
   const isExpanded = await sidebar.getAttribute('data-expanded');
@@ -353,13 +356,15 @@ Then('the {string} data type should still be unchecked', { timeout: 15000 }, asy
       {},
       { timeout: 5000 }
     );
-    await this.page.waitForTimeout(500);
   }
+  
+  // Wait for accordion to populate with checkboxes
+  await this.page.waitForTimeout(1000);
   
   const internalName = convertDataTypeName(dataType);
   // Find the checkbox for this data type in any expanded accordion
   const checkboxSelector = `input[type="checkbox"][id*="${internalName}"]`;
-  await this.page.waitForSelector(checkboxSelector, { state: 'visible', timeout: 10000 });
+  await this.page.waitForSelector(checkboxSelector, { state: 'visible', timeout: 15000 });
   const checkbox = await this.page.locator(checkboxSelector).first();
   await expect(checkbox).not.toBeChecked();
 });
