@@ -212,7 +212,12 @@ When('I uncheck the {string} data type', { timeout: 20000 }, async function (dat
   const checkbox = await this.page.locator(`#${checkboxId}`);
   const isChecked = await checkbox.isChecked();
   if (isChecked) {
-    await checkbox.click({ force: true });
+    // Use JavaScript click to ensure event handlers fire properly
+    await this.page.evaluate((id) => {
+      const cb = document.getElementById(id);
+      if (cb) cb.click();
+    }, checkboxId);
+    
     // Wait for the checkbox to actually become unchecked
     await this.page.waitForFunction(
       (id) => {
