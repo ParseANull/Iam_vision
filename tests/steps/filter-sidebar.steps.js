@@ -72,11 +72,24 @@ Then('the data type filters should be visible', { timeout: 20000 }, async functi
   expect(count).toBeGreaterThan(0);
 });
 
-Then('the filter accordion should be present', async function () {
+Then('the filter accordion should be present', { timeout: 20000 }, async function () {
   // Just check that the accordion exists in DOM (not visibility)
   await this.page.waitForSelector('.filter-accordion', { state: 'attached', timeout: 15000 });
   const accordion = await this.page.locator('.filter-accordion');
   const count = await accordion.count();
+  expect(count).toBeGreaterThan(0);
+});
+
+Then('I should see an accordion item for {string}', async function (envId) {
+  await this.page.waitForSelector(`.filter-accordion-item`, { state: 'attached', timeout: 15000 });
+  const accordionTitle = await this.page.locator(`.filter-accordion-title:has-text("${envId}")`);
+  await expect(accordionTitle).toBeAttached();
+});
+
+Then('the accordion item should contain data type checkboxes', async function () {
+  await this.page.waitForSelector('.data-type-list', { state: 'attached', timeout: 15000 });
+  const checkboxes = await this.page.locator('.data-type-list input[type="checkbox"]');
+  const count = await checkboxes.count();
   expect(count).toBeGreaterThan(0);
 });
 
@@ -123,14 +136,14 @@ Then('I should see the {string} accordion section', async function (sectionName)
   }
 });
 
-Then('the {string} accordion should be expanded by default', async function (sectionName) {
-  // Check if the first environment accordion is expanded
-  if (sectionName === 'Data Types') {
-    const firstHeader = await this.page.locator('.filter-accordion-header').first();
-    await this.page.waitForTimeout(500);
-    const isExpanded = await firstHeader.getAttribute('aria-expanded');
-    expect(isExpanded).toBe('true');
-  }
+Then('the {string} accordion should be expanded by default', async function (envId) {
+  // Check if the environment's accordion is expanded
+  await this.page.waitForSelector('.filter-accordion-item', { state: 'attached', timeout: 15000 });
+  
+  // Find the header for this environment
+  const header = await this.page.locator(`.filter-accordion-header:has(.filter-accordion-title:has-text("${envId}"))`).first();
+  const isExpanded = await header.getAttribute('aria-expanded');
+  expect(isExpanded).toBe('true');
 });
 
 Then('all data type checkboxes should be visible', async function () {
