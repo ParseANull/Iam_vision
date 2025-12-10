@@ -57,7 +57,8 @@ Then('the filter sidebar should expand', async function () {
 
 Then('the data type filters should be visible', async function () {
   // Wait for sidebar content to be populated after environment selection
-  await this.page.waitForSelector('.filter-accordion', { state: 'visible', timeout: 15000 });
+  await this.page.waitForSelector('.filter-accordion', { state: 'attached', timeout: 15000 });
+  await this.page.waitForSelector('.data-type-list', { state: 'visible', timeout: 15000 });
   const dataTypes = await this.page.locator('.data-type-list');
   await expect(dataTypes.first()).toBeVisible();
 });
