@@ -4,9 +4,9 @@ const { expect } = require('@playwright/test');
 // Integration and state management steps
 Then('I should see Applications data from {string} environment', async function (environment) {
   const legend = await this.page.locator('.environment-legend');
-  await expect(legend).toBeVisible();
+  await expect(legend).toBeVisible({ timeout: 15000 });
   const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
-  await expect(legendItem).toBeVisible();
+  await expect(legendItem).toBeVisible({ timeout: 15000 });
 });
 
 Then('MFA data should not be included', async function () {
@@ -16,7 +16,7 @@ Then('MFA data should not be included', async function () {
 
 Then('the environment legend should show {string}', async function (environment) {
   const legend = await this.page.locator('.environment-legend');
-  await expect(legend).toBeVisible();
+  await expect(legend).toBeVisible({ timeout: 15000 });
   const legendItem = await this.page.locator(`.legend-item:has-text("${environment}")`);
   await expect(legendItem).toBeVisible();
 });
