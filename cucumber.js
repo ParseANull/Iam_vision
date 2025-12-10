@@ -15,6 +15,7 @@ module.exports = {
       snippetInterface: 'async-await'
     },
     parallel: 1,
-    publishQuiet: true
+    publishQuiet: true,
+    tags: 'not @skip'
   }
 };
