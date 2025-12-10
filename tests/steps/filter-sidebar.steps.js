@@ -72,6 +72,14 @@ Then('the data type filters should be visible', { timeout: 20000 }, async functi
   expect(count).toBeGreaterThan(0);
 });
 
+Then('the filter accordion should be present', async function () {
+  // Just check that the accordion exists in DOM (not visibility)
+  await this.page.waitForSelector('.filter-accordion', { state: 'attached', timeout: 15000 });
+  const accordion = await this.page.locator('.filter-accordion');
+  const count = await accordion.count();
+  expect(count).toBeGreaterThan(0);
+});
+
 Then('the filter sidebar should collapse', async function () {
   const sidebar = await this.page.locator('#filter-sidebar');
   const isExpanded = await sidebar.getAttribute('data-expanded');

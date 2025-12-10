@@ -49,9 +49,9 @@ Feature: Navigation Menu
     And the Applications data should be from "bidevt"
 
   Scenario: Navigation persists data type filters
-    When I click the sidebar toggle button
+    And I have selected the "bidevt" environment
     And I uncheck the "MFA" data type
-    And I click on the "Federations" navigation item
+    When I click on the "Federations" navigation item
     Then the "MFA" data type should still be unchecked
     And MFA data should not be displayed
 

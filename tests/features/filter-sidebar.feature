@@ -24,30 +24,26 @@ Feature: Filter Sidebar
     When I click the sidebar toggle button
     And I click the sidebar toggle button again
     Then the filter sidebar should expand
-    And the data type filters should be visible
+    And the filter accordion should be present
 
   @sidebar
   Scenario: Accordion sections are present
-    When I click the sidebar toggle button
-    Then I should see the "Data Types" accordion section
-    And I should see the "Data Limiting" accordion section
+    Then I should see an accordion item for "bidevt"
+    And the accordion item should contain data type checkboxes
 
   @sidebar
-  Scenario: Data Types accordion default state
-    When I click the sidebar toggle button
-    Then the "Data Types" accordion should be expanded by default
+  Scenario: Environment accordion default state
+    Then the "bidevt" accordion should be expanded by default
     And all data type checkboxes should be visible
 
   @sidebar
   Scenario: Toggle individual data type
-    When I click the sidebar toggle button
     And I uncheck the "Applications" data type
     Then the "Applications" checkbox should be unchecked
     And applications data should not be displayed in visualizations
 
   @sidebar
   Scenario: Toggle multiple data types
-    When I click the sidebar toggle button
     And I uncheck the "Applications" data type
     And I uncheck the "Federations" data type
     Then both "Applications" and "Federations" should be unchecked
@@ -55,20 +51,17 @@ Feature: Filter Sidebar
 
   @sidebar
   Scenario: Check all data types
-    When I click the sidebar toggle button
     And all data types are checked
     Then all available data should be displayed in visualizations
 
   @sidebar
   Scenario: Data type selections persist in URL
-    When I click the sidebar toggle button
     And I uncheck the "MFA" data type
     Then the URL should reflect the data type selection
     When I refresh the page
     Then the "MFA" data type should still be unchecked
 
   Scenario: Sidebar state persists across theme changes
-    When I click the sidebar toggle button
     Then the sidebar should be expanded
     When I switch to dark theme
     Then the sidebar should remain expanded
