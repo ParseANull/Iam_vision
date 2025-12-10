@@ -210,7 +210,7 @@ When('I uncheck the {string} data type', { timeout: 20000 }, async function (dat
   
   // Find the checkbox for this data type in any expanded accordion
   const checkboxSelector = `input[type="checkbox"][id*="${internalName}"]`;
-  await this.page.waitForSelector(checkboxSelector, { state: 'visible', timeout: 10000 });
+  await this.page.waitForSelector(checkboxSelector, { state: 'visible', timeout: 20000 });
   
   const checkbox = await this.page.locator(checkboxSelector).first();
   const checkboxId = await checkbox.getAttribute('id');

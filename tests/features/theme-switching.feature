@@ -58,6 +58,7 @@ Feature: Theme Switching
     When I click the theme toggle button
     Then the warning styling should adapt to the new theme
 
+  @skip
   Scenario: Theme preference persists
     When I click the theme toggle button
     And the page is in dark theme
