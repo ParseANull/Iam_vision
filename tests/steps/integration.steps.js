@@ -13,7 +13,8 @@ Then('I should see Applications data from {string} environment', { timeout: 2000
 });
 
 Then('MFA data should not be included', async function () {
-  const checkbox = await this.page.locator('input[type="checkbox"][data-type="mfa"]');
+  // MFA data type is mfa_configurations - check any environment's MFA checkbox
+  const checkbox = await this.page.locator('input[type="checkbox"][id*="mfa_configurations"]').first();
   await expect(checkbox).not.toBeChecked();
 });
 
