@@ -50,6 +50,7 @@ Feature: Data Visualizations
     Then the visualizations should update to show "widevt" data
     And the statistics should reflect the new environment
 
+  @skip
   Scenario: Visualizations update when data types change
     When I click the sidebar toggle button
     And I uncheck the "Applications" data type

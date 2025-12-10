@@ -41,11 +41,17 @@ Given('I have selected the {string} environment', async function (environment) {
 // Environment Selector steps
 When('I click the environment selector', { timeout: 20000 }, async function () {
   const toggle = await this.page.locator('#environment-selector-toggle');
-  await toggle.click();
   
-  // Wait for menu to become visible
-  await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 15000 });
-  await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 15000 });
+  // Check if menu is already open
+  const menuVisible = await this.page.locator('#environment-selector-menu').isVisible().catch(() => false);
+  
+  if (!menuVisible) {
+    await toggle.click();
+    
+    // Wait for menu to become visible
+    await this.page.waitForSelector('#environment-selector-menu', { state: 'visible', timeout: 15000 });
+    await this.page.waitForSelector('.bx--list-box__menu-item', { state: 'visible', timeout: 15000 });
+  }
 });
 
 When('I select the {string} environment', { timeout: 15000 }, async function (environment) {
