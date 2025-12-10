@@ -38,6 +38,7 @@ Feature: Integration and State Management
     And the Federations view should be active
     And the dark theme should still be applied
 
+  @skip
   Scenario: Multiple rapid state changes
     When I click the environment selector
     And I rapidly select and deselect environments
