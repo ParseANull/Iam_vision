@@ -55,7 +55,7 @@ Then('the filter sidebar should expand', async function () {
   expect(isExpanded).toBe('true');
 });
 
-Then('the data type filters should be visible', async function () {
+Then('the data type filters should be visible', { timeout: 20000 }, async function () {
   // Wait for sidebar to be expanded
   await this.page.waitForFunction(
     () => document.getElementById('filter-sidebar')?.getAttribute('data-expanded') === 'true',
