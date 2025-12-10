@@ -52,9 +52,7 @@ Feature: Theme Switching
     And data should remain clearly visible
 
   Scenario: Performance warning adapts to theme
-    When I click the sidebar toggle button
-    And I expand the "Data Limiting" accordion
-    And I set the data limit slider to 10%
+    When I set the data limit slider to 10%
     Then if a performance warning appears, it should be styled for the current theme
     When I click the theme toggle button
     Then the warning styling should adapt to the new theme

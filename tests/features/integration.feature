@@ -10,7 +10,6 @@ Feature: Integration and State Management
     When I click the environment selector
     And I select the "bidevt" environment
     And I uncheck the "MFA" data type
-    And I expand the "Data Limiting" accordion
     And I set the data limit slider to 70%
     And I click on the "Applications" navigation item
     Then I should see Applications data from "bidevt" environment
@@ -51,7 +50,6 @@ Feature: Integration and State Management
 
   Scenario: Sidebar interactions don't affect navigation
     When I click the sidebar toggle button
-    And I expand the "Data Limiting" accordion
     And I navigate through all menu items
     Then the sidebar should remain in its state
     And the data limit setting should persist
