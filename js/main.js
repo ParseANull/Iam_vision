@@ -955,6 +955,9 @@ function initializeEnvironmentSelector() {
     // Populate menu with environments
     populateEnvironmentMenu();
     
+    // Initialize label
+    updateEnvironmentSelectorLabel();
+    
     // Toggle dropdown
     toggle.addEventListener('click', (e) => {
         e.stopPropagation();

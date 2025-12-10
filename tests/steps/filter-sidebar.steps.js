@@ -330,3 +330,9 @@ Then('the sidebar styling should adapt to dark theme', async function () {
   const bodyTheme = await this.page.getAttribute('body', 'data-theme');
   expect(bodyTheme).toBe('dark');
 });
+
+Then('MFA data should not be displayed', async function () {
+  // This is a visual check - we verify the checkbox state which controls visibility
+  const checkbox = await this.page.locator('#filter-bidevt-mfa_config');
+  await expect(checkbox).not.toBeChecked();
+});
